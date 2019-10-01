@@ -30,9 +30,7 @@ static void mouse_callback(int event, int x, int y, int flags, void* userdata)
         pt1 = {x, y};
         mouse_callback_mutex.unlock();
         break;
-    case cv::EVENT_RBUTTONDOWN:
-        break;
-    case cv::EVENT_RBUTTONUP:
+    case cv::EVENT_MBUTTONUP:
         mouse_callback_mutex.lock();
         init = false;
         deinit = true;
@@ -54,7 +52,7 @@ int main()
     {
         video_capture.open(device_name);
     }
-    if(video_capture.isOpened())
+    if(!video_capture.isOpened())
     {
         cout << "Device opening error " << device_name << " : " << device_idx << endl;
         cv::destroyAllWindows();
@@ -91,12 +89,12 @@ int main()
                 etld.get_object(&obj);
                 if(obj.valid)
                 {
-                    cv::rectangle(gray, obj.window, cv::Scalar(0, 255, 0), 2);
+                    cv::rectangle(frame, obj.window, cv::Scalar(0, 255, 0), 2);
                 }
             }
             mouse_callback_mutex.unlock();
 
-            cv::imshow("Frame", gray);
+            cv::imshow("Frame", frame);
         }
 
         int key = cv::waitKey(1);
