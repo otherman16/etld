@@ -5,14 +5,15 @@
 
 #include <stdint.h>
 
-#define DETECT_SCALES       (5)
-#define LEARN_SCALES        (9)
-#define LEARN_ANGLES        (9)
+#define DETECT_SCALES       (3)
+#define LEARN_SCALES        (3)
+#define LEARN_ANGLES        (3)
 
 #define ETLD_W (320)
 #define ETLD_H (240)
 #define ETLD_N (76800)
-
+namespace cv
+{
 namespace etld
 {
 
@@ -172,6 +173,7 @@ _etld_cluster {
     int * idx;
 } etld_cluster;
 
+}
 }
 
 #endif // ETLD_GLOBAL_H

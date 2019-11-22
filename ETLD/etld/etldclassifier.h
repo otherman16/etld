@@ -2,7 +2,8 @@
 #define ETLDCLASSIFIER_H
 
 #include "etld/etld_global.h"
-
+namespace cv
+{
 class EtldImage;
 class EtldSimpleImage;
 
@@ -57,5 +58,6 @@ private:
     std::pair<int, int> * simple_detect_fern;
     std::pair<cv::Point_<int>, cv::Point_<int>> * learn_fern;
 };
+}
 
 #endif // ETLDCLASSIFIER_H

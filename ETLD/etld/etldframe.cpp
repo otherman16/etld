@@ -9,6 +9,8 @@
 #define GRID_X_STEP  (ETLD_W / GRID_X_STEPS)
 #define GRID_Y_STEP  (ETLD_H / GRID_Y_STEPS)
 
+namespace cv
+{
 EtldFrame::EtldFrame()
 {
     frame = nullptr;
@@ -197,11 +199,16 @@ void EtldFrame::choose_find_subframe(const cv::Rect_<int> &)
 }
 void EtldFrame::calculate_smoothed_subframe()
 {
-    cv::blur(*subframe, *smoothed_subframe, cv::Size(7, 7));
-    cv::blur(*prev_subframe, *prev_smoothed_subframe, cv::Size(7, 7));
+//    cv::blur(*subframe, *smoothed_subframe, cv::Size(7, 7));
+//    cv::blur(*prev_subframe, *prev_smoothed_subframe, cv::Size(7, 7));
+    double sigma = 1.5;
+    int size = int(round(sigma * 6));
+    cv::GaussianBlur(*subframe, *smoothed_subframe, cv::Size(size, size), sigma);
+    cv::GaussianBlur(*prev_subframe, *prev_smoothed_subframe, cv::Size(size, size), sigma);
 }
 void EtldFrame::calculate_subframe()
 {
     cv::resize((*frame)(roi), *subframe, subframe->size(), 0.0, 0.0, cv::INTER_NEAREST);
     cv::resize((*prev_frame)(roi), *prev_subframe, prev_subframe->size(), 0.0, 0.0, cv::INTER_NEAREST);
+}
 }

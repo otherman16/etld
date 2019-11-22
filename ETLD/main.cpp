@@ -62,14 +62,25 @@ int main()
     cv::setMouseCallback("Frame", mouse_callback, nullptr);
     cv::Mat frame, gray;
     cv::Rect_<int> etld_roi;
-    etld_object obj;
-    ETLD etld;
+    cv::etld_object obj;
+    cv::ETLD etld;
+
     while(true)
     {
         video_capture >> frame;
         if(!frame.empty())
         {
+            cv::resize(frame, frame, cv::Size(1920, 1440), 0, 0, cv::INTER_CUBIC);
             cv::cvtColor(frame, gray, cv::COLOR_BGR2GRAY);
+
+//            cv::Mat noise(gray.size(), gray.type());
+//            cv::Mat m(1, 1, CV_32FC1);
+//            m = cv::Scalar(2);
+//            cv::Mat sigma(1, 1, CV_32FC1);
+//            sigma = cv::Scalar(4);
+//            cv::randn(noise, m, sigma);
+//            cv::Mat ngray = gray + noise;
+//            cv::imshow("ngray", ngray);
 
             mouse_callback_mutex.lock();
             if(deinit)
@@ -91,6 +102,7 @@ int main()
                 {
                     cv::rectangle(frame, obj.window, cv::Scalar(0, 255, 0), 2);
                 }
+                cout << etld.str_timings() << endl;
             }
             mouse_callback_mutex.unlock();
 

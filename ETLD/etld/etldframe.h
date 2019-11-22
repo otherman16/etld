@@ -2,6 +2,8 @@
 #define ETLDFRAME_H
 
 #include "etld/etld_global.h"
+namespace cv
+{
 using namespace etld;
 class EtldFrame
 {
@@ -33,5 +35,6 @@ private:
     cv::Rect_<int> roi;
     bool _find;
 };
+}
 
 #endif // ETLDFRAME_H

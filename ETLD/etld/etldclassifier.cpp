@@ -8,6 +8,8 @@
 
 #define INIT_NP_THR_DIV (3)
 
+namespace cv
+{
 EtldClassifier::EtldClassifier()
 {
     fern_n         = 10;
@@ -386,4 +388,5 @@ void EtldClassifier::deallocate()
 EtldClassifier::~EtldClassifier()
 {
     deallocate();
+}
 }

@@ -7,6 +7,8 @@
 #include <math.h>
 #include <cstring>
 
+namespace cv
+{
 EtldLearning::EtldLearning()
 {
     fast_update = false;
@@ -326,13 +328,13 @@ void EtldLearning::update(const cv::Mat_<uint8_t> & frame, const etld_object & o
         float O = copy_obj.O(obj);
         if( O < overlap_thrld )
         {
-            int D = copy_obj.D();
+//            int D = copy_obj.D();
 //            if(c_neg_num < c_pos_num)
             {
                 float R = classifier.learn_R(copy_obj);
                 if( (neg_r_min < R) && (R < neg_r_max) )
                 {
-                    if(D > D_thrld)
+//                    if(D > D_thrld)
                     {
                         classifier.add_neg_ex(copy_obj);
                         ++c_neg_num;
@@ -344,7 +346,7 @@ void EtldLearning::update(const cv::Mat_<uint8_t> & frame, const etld_object & o
                 float C = model.C(copy_obj);
                 if( (neg_c_min < C) && (C < neg_c_max) )
                 {
-                    if(D > D_thrld)
+//                    if(D > D_thrld)
                     {
                         model.add_neg_ex(copy_obj);
                         ++m_neg_num;
@@ -361,4 +363,5 @@ void EtldLearning::update(const cv::Mat_<uint8_t> & frame, const etld_object & o
     //====== Освобождение вспомогательных ресурсов
     //=======================================================================================
     delete [] grid;
+}
 }

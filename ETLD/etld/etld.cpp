@@ -8,6 +8,10 @@
 using namespace std;
 #include "etld/my_fast.h"
 
+#include <opencv2/tracking.hpp>
+namespace cv
+{
+
 ETLD::ETLD()
 {
     _on = false;
@@ -32,16 +36,14 @@ ETLD::ETLD()
     settings.classifier_settings.fern_n = 20;
     settings.classifier_settings.fern_k = 10;
 
-    settings.detector_settings.grid_step = 2;
+    settings.detector_settings.grid_step = 4;
     settings.detector_settings.r_thrld = 0.7f;
     settings.detector_settings.max_candidates_num = 8;
     settings.detector_settings.detect_scales[0] = 1.00f;
-    settings.detector_settings.detect_scales[1] = 0.90f;
-    settings.detector_settings.detect_scales[2] = 0.80f;
-    settings.detector_settings.detect_scales[3] = 1.10f;
-    settings.detector_settings.detect_scales[4] = 1.20f;
-    settings.detector_settings.min_scale        = 0.90f;
-    settings.detector_settings.max_scale        = 1.10f;
+    settings.detector_settings.detect_scales[1] = 0.75f;
+    settings.detector_settings.detect_scales[2] = 1.25f;
+    settings.detector_settings.min_scale        = 0.80f;
+    settings.detector_settings.max_scale        = 1.20f;
 
     settings.tracker_settings.pyramid_levels        = 3;
     settings.tracker_settings.win_sz                = 5;
@@ -55,7 +57,7 @@ ETLD::ETLD()
     settings.tracker_settings.min_part_for_scale    = 0.1f;
     settings.tracker_settings.use_fast              = false;
 
-    settings.integrator_settings.c_thrld = 0.7f;
+    settings.integrator_settings.c_thrld = 0.6f;
     settings.integrator_settings.overlap_thrld = 0.5;
     settings.integrator_settings.frames_valid = 40;
     settings.integrator_settings.a_xy = 0.9f;
@@ -74,23 +76,11 @@ ETLD::ETLD()
     settings.learning_settings.pos_c_max         = settings.integrator_settings.c_thrld + 0.1f;//0.7f;
     settings.learning_settings.overlap_thrld     = 0.5f;
     settings.learning_settings.learn_scales[0]   = 1.00f;
-    settings.learning_settings.learn_scales[1]   = 0.94f;
-    settings.learning_settings.learn_scales[2]   = 0.85f;
-    settings.learning_settings.learn_scales[3]   = 0.79f;
-    settings.learning_settings.learn_scales[4]   = 0.75f;
-    settings.learning_settings.learn_scales[5]   = 1.06f;
-    settings.learning_settings.learn_scales[6]   = 1.13f;
-    settings.learning_settings.learn_scales[7]   = 1.19f;
-    settings.learning_settings.learn_scales[8]   = 1.25f;
+    settings.learning_settings.learn_scales[1]   = 0.75f;
+    settings.learning_settings.learn_scales[2]   = 1.25f;
     settings.learning_settings.learn_angles[0]   = 0.00f;
-    settings.learning_settings.learn_angles[1]   = -0.34f;
-    settings.learning_settings.learn_angles[2]   = -0.25f;
-    settings.learning_settings.learn_angles[3]   = -0.17f;
-    settings.learning_settings.learn_angles[4]   = -0.09f;
-    settings.learning_settings.learn_angles[5]   = 0.09f;
-    settings.learning_settings.learn_angles[6]   = 0.17f;
-    settings.learning_settings.learn_angles[7]   = 0.25f;
-    settings.learning_settings.learn_angles[8]   = 0.34f;
+    settings.learning_settings.learn_angles[1]   = -0.25f;
+    settings.learning_settings.learn_angles[2]   = 0.34f;
 
     etld_time = 0;
     frame_time = 0;
@@ -99,8 +89,6 @@ ETLD::ETLD()
     tracker_time = 0;
     integrator_time = 0;
     update_time = 0;
-
-    smoothed_subframe_copy = new cv::Mat_<uint8_t>(ETLD_H, ETLD_W);
 }
 bool ETLD::load_settings(string fileName)
 {
@@ -127,8 +115,6 @@ bool ETLD::load_settings(string fileName)
             else if(!key.compare("detector_settings.detect_scales[0]")) settings.detector_settings.detect_scales[0] = (stof(val));
             else if(!key.compare("detector_settings.detect_scales[1]")) settings.detector_settings.detect_scales[1] = (stof(val));
             else if(!key.compare("detector_settings.detect_scales[2]")) settings.detector_settings.detect_scales[2] = (stof(val));
-            else if(!key.compare("detector_settings.detect_scales[3]")) settings.detector_settings.detect_scales[3] = (stof(val));
-            else if(!key.compare("detector_settings.detect_scales[4]")) settings.detector_settings.detect_scales[4] = (stof(val));
             else if(!key.compare("detector_settings.min_scale")) settings.detector_settings.min_scale = (stof(val));
             else if(!key.compare("detector_settings.max_scale")) settings.detector_settings.max_scale = (stof(val));
             else if(!key.compare("tracker_settings.pyramid_levels")) settings.tracker_settings.pyramid_levels = stoi(val);
@@ -162,21 +148,9 @@ bool ETLD::load_settings(string fileName)
             else if(!key.compare("learning_settings.learn_scales[0]")) settings.learning_settings.learn_scales[0] = (stof(val));
             else if(!key.compare("learning_settings.learn_scales[1]")) settings.learning_settings.learn_scales[1] = (stof(val));
             else if(!key.compare("learning_settings.learn_scales[2]")) settings.learning_settings.learn_scales[2] = (stof(val));
-            else if(!key.compare("learning_settings.learn_scales[3]")) settings.learning_settings.learn_scales[3] = (stof(val));
-            else if(!key.compare("learning_settings.learn_scales[4]")) settings.learning_settings.learn_scales[4] = (stof(val));
-            else if(!key.compare("learning_settings.learn_scales[5]")) settings.learning_settings.learn_scales[5] = (stof(val));
-            else if(!key.compare("learning_settings.learn_scales[6]")) settings.learning_settings.learn_scales[6] = (stof(val));
-            else if(!key.compare("learning_settings.learn_scales[7]")) settings.learning_settings.learn_scales[7] = (stof(val));
-            else if(!key.compare("learning_settings.learn_scales[8]")) settings.learning_settings.learn_scales[8] = (stof(val));
             else if(!key.compare("learning_settings.learn_angles[0]")) settings.learning_settings.learn_angles[0] = (stof(val));
             else if(!key.compare("learning_settings.learn_angles[1]")) settings.learning_settings.learn_angles[1] = (stof(val));
             else if(!key.compare("learning_settings.learn_angles[2]")) settings.learning_settings.learn_angles[2] = (stof(val));
-            else if(!key.compare("learning_settings.learn_angles[3]")) settings.learning_settings.learn_angles[3] = (stof(val));
-            else if(!key.compare("learning_settings.learn_angles[4]")) settings.learning_settings.learn_angles[4] = (stof(val));
-            else if(!key.compare("learning_settings.learn_angles[5]")) settings.learning_settings.learn_angles[5] = (stof(val));
-            else if(!key.compare("learning_settings.learn_angles[6]")) settings.learning_settings.learn_angles[6] = (stof(val));
-            else if(!key.compare("learning_settings.learn_angles[7]")) settings.learning_settings.learn_angles[7] = (stof(val));
-            else if(!key.compare("learning_settings.learn_angles[8]")) settings.learning_settings.learn_angles[8] = (stof(val));
         }
         config.close();
         printf("\tDone\n");
@@ -204,8 +178,6 @@ string ETLD::str_settings()
     os << "\t{detector_settings.detect_scales[0] : " << settings.detector_settings.detect_scales[0] << "}" << endl;
     os << "\t{detector_settings.detect_scales[1] : " << settings.detector_settings.detect_scales[1] << "}" << endl;
     os << "\t{detector_settings.detect_scales[2] : " << settings.detector_settings.detect_scales[2] << "}" << endl;
-    os << "\t{detector_settings.detect_scales[3] : " << settings.detector_settings.detect_scales[3] << "}" << endl;
-    os << "\t{detector_settings.detect_scales[4] : " << settings.detector_settings.detect_scales[4] << "}" << endl;
     os << "\t{detector_settings.min_scale : " << settings.detector_settings.min_scale << "}" << endl;
     os << "\t{detector_settings.max_scale : " << settings.detector_settings.max_scale << "}" << endl;
     os << "\t{tracker_settings.pyramid_levels : " << settings.tracker_settings.pyramid_levels << "}" << endl;
@@ -239,27 +211,16 @@ string ETLD::str_settings()
     os << "\t{learning_settings.learn_scales[0] : " << settings.learning_settings.learn_scales[0] << "}" << endl;
     os << "\t{learning_settings.learn_scales[1] : " << settings.learning_settings.learn_scales[1] << "}" << endl;
     os << "\t{learning_settings.learn_scales[2] : " << settings.learning_settings.learn_scales[2] << "}" << endl;
-    os << "\t{learning_settings.learn_scales[3] : " << settings.learning_settings.learn_scales[3] << "}" << endl;
-    os << "\t{learning_settings.learn_scales[4] : " << settings.learning_settings.learn_scales[4] << "}" << endl;
-    os << "\t{learning_settings.learn_scales[5] : " << settings.learning_settings.learn_scales[5] << "}" << endl;
-    os << "\t{learning_settings.learn_scales[6] : " << settings.learning_settings.learn_scales[6] << "}" << endl;
-    os << "\t{learning_settings.learn_scales[7] : " << settings.learning_settings.learn_scales[7] << "}" << endl;
-    os << "\t{learning_settings.learn_scales[8] : " << settings.learning_settings.learn_scales[8] << "}" << endl;
     os << "\t{learning_settings.learn_angles[0] : " << settings.learning_settings.learn_angles[0] << "}" << endl;
     os << "\t{learning_settings.learn_angles[1] : " << settings.learning_settings.learn_angles[1] << "}" << endl;
     os << "\t{learning_settings.learn_angles[2] : " << settings.learning_settings.learn_angles[2] << "}" << endl;
-    os << "\t{learning_settings.learn_angles[3] : " << settings.learning_settings.learn_angles[3] << "}" << endl;
-    os << "\t{learning_settings.learn_angles[4] : " << settings.learning_settings.learn_angles[4] << "}" << endl;
-    os << "\t{learning_settings.learn_angles[5] : " << settings.learning_settings.learn_angles[5] << "}" << endl;
-    os << "\t{learning_settings.learn_angles[6] : " << settings.learning_settings.learn_angles[6] << "}" << endl;
-    os << "\t{learning_settings.learn_angles[7] : " << settings.learning_settings.learn_angles[7] << "}" << endl;
-    os << "\t{learning_settings.learn_angles[8] : " << settings.learning_settings.learn_angles[8] << "}" << endl;
     return os.str();
 }
 string ETLD::str_timings()
 {
     ostringstream os;
     os << "\t{etld_time : " << etld_time << "}" << endl;
+    os << "\t\t{frame_time : " << frame_time << "}" << endl;
     os << "\t\t{init_time : " << init_time << "}" << endl;
     os << "\t\t{detector_time : " << detector_time << "}" << endl;
     os << "\t\t{tracker_time : " << tracker_time << "}" << endl;
@@ -461,72 +422,30 @@ void ETLD::new_frame(const cv::Mat_<uint8_t> & f, cv::Rect_<int> & roi)
 
         frame_time = int((chrono::duration_cast<chrono::milliseconds>(chrono::steady_clock::now() - begin_frame)).count());
 
-        model_copy = model;
-        classifier_copy = classifier;
-        etld_object object_copy = {
-            object.valid,
-            object.tracker_reinit,
-            object.update,
-            object.C,
-            object.R,
-            {
-                object.window.x,
-                object.window.y,
-                object.window.width,
-                object.window.height
-            }
-        };
-        #pragma omp parallel sections num_threads(OMP_THR) if(OMP_EN)
+        chrono::steady_clock::time_point begin_detector = chrono::steady_clock::now();
+        detector_candidates_num = detector.detect(smoothed_subframe, object, detector_candidates, classifier, model);
+        detector_time = int((chrono::duration_cast<chrono::milliseconds>(chrono::steady_clock::now() - begin_detector)).count());
+
+        chrono::steady_clock::time_point begin_tracker = chrono::steady_clock::now();
+        tracker.track(prev_subframe, subframe, smoothed_subframe, object, tracker_candidate, classifier, model);
+        tracker_time = int((chrono::duration_cast<chrono::milliseconds>(chrono::steady_clock::now() - begin_tracker)).count());
+
+        chrono::steady_clock::time_point begin_integrator = chrono::steady_clock::now();
+        integrator.integrate(object, tracker_candidate, detector_candidates, detector_candidates_num);
+        integrator_time = int((chrono::duration_cast<chrono::milliseconds>(chrono::steady_clock::now() - begin_integrator)).count());
+
+        if(object.update)
         {
-            #pragma omp section
-            {
-                if(object_copy.update)
-                {
-                    chrono::steady_clock::time_point begin_update = chrono::steady_clock::now();
-                    learning.update(*smoothed_subframe_copy, object_copy, classifier, model);
-                    update_time = int((chrono::duration_cast<chrono::milliseconds>(chrono::steady_clock::now() - begin_update)).count());
-                }
-            }
-            #pragma omp section
-            {
-                chrono::steady_clock::time_point begin_detector = chrono::steady_clock::now();
-                detector_candidates_num = detector.detect(smoothed_subframe, object, detector_candidates, classifier_copy, model_copy);
-                detector_time = int((chrono::duration_cast<chrono::milliseconds>(chrono::steady_clock::now() - begin_detector)).count());
-
-                chrono::steady_clock::time_point begin_tracker = chrono::steady_clock::now();
-                tracker.track(prev_subframe, subframe, smoothed_subframe, object, tracker_candidate, classifier_copy, model_copy);
-                tracker_time = int((chrono::duration_cast<chrono::milliseconds>(chrono::steady_clock::now() - begin_tracker)).count());
-
-                chrono::steady_clock::time_point begin_integrator = chrono::steady_clock::now();
-                integrator.integrate(object, tracker_candidate, detector_candidates, detector_candidates_num);
-                integrator_time = int((chrono::duration_cast<chrono::milliseconds>(chrono::steady_clock::now() - begin_integrator)).count());
-            }
+            chrono::steady_clock::time_point begin_update = chrono::steady_clock::now();
+            learning.update(smoothed_subframe, object, classifier, model);
+            update_time = int((chrono::duration_cast<chrono::milliseconds>(chrono::steady_clock::now() - begin_update)).count());
         }
-        memcpy(smoothed_subframe_copy->data, smoothed_subframe.data, sizeof(uint8_t) * ETLD_N);
-
-//        chrono::steady_clock::time_point begin_detector = chrono::steady_clock::now();
-//        detector_candidates_num = detector.detect(*smoothed_subframe, object, detector_candidates, classifier, model);
-//        detector_time = int((chrono::duration_cast<chrono::milliseconds>(chrono::steady_clock::now() - begin_detector)).count());
-
-//        chrono::steady_clock::time_point begin_tracker = chrono::steady_clock::now();
-//        tracker.track(*prev_subframe, *subframe, *smoothed_subframe, object, tracker_candidate, classifier, model);
-//        tracker_time = int((chrono::duration_cast<chrono::milliseconds>(chrono::steady_clock::now() - begin_tracker)).count());
-
-//        chrono::steady_clock::time_point begin_integrator = chrono::steady_clock::now();
-//        integrator.integrate(object, tracker_candidate, detector_candidates, detector_candidates_num);
-//        integrator_time = int((chrono::duration_cast<chrono::milliseconds>(chrono::steady_clock::now() - begin_integrator)).count());
-
-//        if(object.update)
-//        {
-//            chrono::steady_clock::time_point begin_update = chrono::steady_clock::now();
-//            learning.update(*smoothed_subframe, object, classifier, model);
-//            update_time = int((chrono::duration_cast<chrono::milliseconds>(chrono::steady_clock::now() - begin_update)).count());
-//        }
 
         etld_time = int((chrono::duration_cast<chrono::milliseconds>(chrono::steady_clock::now() - begin_etld)).count());
     }
 }
 ETLD::~ETLD()
 {
-    delete smoothed_subframe_copy;
+}
+
 }

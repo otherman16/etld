@@ -4,6 +4,8 @@
 
 #include <math.h>
 
+namespace cv
+{
 EtldModel::EtldModel()
 {
     ex_w = 15;
@@ -196,4 +198,5 @@ void EtldModel::deallocate()
 EtldModel::~EtldModel()
 {
     deallocate();
+}
 }

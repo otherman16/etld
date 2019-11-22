@@ -1,5 +1,7 @@
 #include "etldimage.h"
 
+namespace cv
+{
 EtldImage::EtldImage(const int & w,
                      const int & h) :
     cv::Mat_<uint8_t>(h, w),
@@ -79,4 +81,5 @@ int EtldImage::D()
     cv::meanStdDev(*this, obj_mean, obj_stddev);
     int D = int(round(obj_stddev.val[0]));
     return D;
+}
 }

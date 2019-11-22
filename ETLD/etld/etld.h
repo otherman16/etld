@@ -1,6 +1,9 @@
 #ifndef ETLD_CLASS_H
 #define ETLD_CLASS_H
 
+#include <opencv2/opencv.hpp>
+#include <opencv2/tracking.hpp>
+
 #include "etld/etld_global.h"
 
 #include "etld/etldclassifier.h"
@@ -12,12 +15,15 @@
 #include "etld/etldtracker.h"
 #include "etld/etldframe.h"
 
+namespace cv
+{
+
 using namespace etld;
-class ETLD
+class ETLD : public Tracker
 {
 public:
     ETLD();
-    ~ETLD();
+    virtual ~ETLD() override;
 
     bool load_settings(std::string);
     std::string str_settings();
@@ -42,8 +48,14 @@ public:
     void new_frame(uint8_t * f, const uint32_t & fw, const uint32_t & fh, cv::Rect_<int> & roi);
     void new_frame(const cv::Mat_<uint8_t> & f, cv::Rect_<int> & roi);
 
+    virtual void read( const FileNode& fn ) CV_OVERRIDE {}
+    virtual void write( FileStorage& fs ) const CV_OVERRIDE {}
+
 private:
     void reaim(const cv::Mat_<uint8_t> & f, cv::Rect_<int> & aim);
+
+    virtual bool initImpl( const Mat& image, const Rect2d& boundingBox ) CV_OVERRIDE {return true;}
+    virtual bool updateImpl( const Mat& image, Rect2d& boundingBox ) CV_OVERRIDE {return true;}
 
 private:
     volatile bool _on;
@@ -74,10 +86,8 @@ private:
     volatile int tracker_time;
     volatile int integrator_time;
     volatile int update_time;
-
-    cv::Mat_<uint8_t> * smoothed_subframe_copy;
-    EtldModel model_copy;
-    EtldClassifier classifier_copy;
 };
+
+}
 
 #endif // ETLD_CLASS_H

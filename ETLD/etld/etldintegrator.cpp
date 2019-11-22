@@ -5,6 +5,8 @@
 #include <cstring>
 #include <math.h>
 
+namespace cv
+{
 EtldIntegrator::EtldIntegrator()
 {
     c_thrld = 0.7f;
@@ -330,4 +332,5 @@ float EtldIntegrator::overlap(const cv::Rect_<int> & p0, const cv::Rect_<int> & 
     if(s == 0.0f) return 0.0f;
     float o = (s1 < s2) ? (s1 / s) : (s2 / s);
     return o;
+}
 }
