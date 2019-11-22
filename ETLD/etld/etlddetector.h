@@ -3,6 +3,8 @@
 
 #include "etld/etld_global.h"
 
+namespace cv
+{
 class EtldClassifier;
 class EtldModel;
 
@@ -26,5 +28,6 @@ private:
     float min_scale;
     float max_scale;
 };
+}
 
 #endif // ETLDDETECTOR_H

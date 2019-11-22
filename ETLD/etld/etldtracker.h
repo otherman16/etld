@@ -3,6 +3,8 @@
 
 #include "etld/etld_global.h"
 
+namespace cv
+{
 class EtldClassifier;
 class EtldModel;
 
@@ -47,5 +49,6 @@ private:
     float min_part_for_scale;
     bool use_fast;
 };
+}
 
 #endif // ETLDTRACKER_H

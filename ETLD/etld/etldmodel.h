@@ -3,6 +3,8 @@
 
 #include "etld/etld_global.h"
 
+namespace cv
+{
 class EtldImage;
 
 using namespace etld;
@@ -43,5 +45,6 @@ private:
     EtldImage ** pos_ex;
     EtldImage ** neg_ex;
 };
+}
 
 #endif // ETLDMODEL_H

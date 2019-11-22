@@ -1,6 +1,7 @@
 #include "etldsimpleimage.h"
 
-
+namespace cv
+{
 void EtldSimpleImage::copyTo(EtldSimpleImage & img)
 {
     if((img.w() != _w) || (img.h() != _h)) return;
@@ -144,4 +145,5 @@ int EtldSimpleImage::M()
     }
     m /= _n;
     return m;
+}
 }

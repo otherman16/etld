@@ -3,6 +3,8 @@
 
 #include "etld/etld_global.h"
 
+namespace cv
+{
 class EtldClassifier;
 class EtldModel;
 
@@ -30,5 +32,6 @@ private:
     float a_xy;
     float a_wh;
 };
+}
 
 #endif // ETLDINTEGRATOR_H

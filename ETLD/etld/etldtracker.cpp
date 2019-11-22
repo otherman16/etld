@@ -11,6 +11,8 @@
 
 #include <vector>
 
+namespace cv
+{
 template<typename T>
 static T median(const std::vector<T> & _v)
 {
@@ -451,4 +453,5 @@ bool EtldTracker::track (float & x0, float & y0, float & w, float & h)
     }
 
     return true;
+}
 }

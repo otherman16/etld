@@ -3,6 +3,8 @@
 
 #include "etld/etld_global.h"
 
+namespace cv
+{
 class EtldImage;
 class EtldClassifier;
 class EtldModel;
@@ -35,5 +37,6 @@ private:
     float learn_scales[LEARN_SCALES];
     float learn_angles[LEARN_ANGLES];
 };
+}
 
 #endif // ETLDLEARNING_H

@@ -3,6 +3,8 @@
 
 #include "etld/etld_global.h"
 
+namespace cv
+{
 using namespace etld;
 class EtldImage : public cv::Mat_<uint8_t>
 {
@@ -44,5 +46,6 @@ public:
 private:
     cv::Rect_<int> _roi;
 };
+}
 
 #endif // ETLDIMAGE_H

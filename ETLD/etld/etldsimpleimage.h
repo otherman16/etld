@@ -2,6 +2,8 @@
 #define ETLDSIMPLEIMAGE_H
 
 #include "etld/etld_global.h"
+namespace cv
+{
 using namespace etld;
 
 class EtldSimpleImage
@@ -119,5 +121,6 @@ public:
 public:
     uint8_t * data;
 };
+}
 
 #endif // ETLDSIMPLEIMAGE_H

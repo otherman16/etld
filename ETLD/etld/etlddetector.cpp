@@ -8,6 +8,8 @@
 #include <math.h>
 #include <cstring>
 
+namespace cv
+{
 EtldDetector::EtldDetector()
 {
     grid_step = 2;
@@ -95,7 +97,7 @@ int EtldDetector::detect(const cv::Mat_<uint8_t> & frame, const etld_object & ob
             float R = classifier.detect_R(obj, scale_idx);
             if(R > R_min)
             {
-                if(obj.D() > D_thrld)
+//                if(obj.D() > D_thrld)
                 {
                     if(candidates_num == max_candidates_num)
                     {
@@ -150,4 +152,5 @@ int EtldDetector::detect(const cv::Mat_<uint8_t> & frame, const etld_object & ob
     }
     delete [] grid;
     return candidates_num;
+}
 }
