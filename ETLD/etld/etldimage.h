@@ -5,14 +5,15 @@
 
 namespace cv
 {
-using namespace etld;
+namespace etld
+{
 class EtldImage : public cv::Mat_<uint8_t>
 {
 public:
     EtldImage(const int & w,
               const int & h);
     EtldImage(const cv::Mat_<uint8_t> & frame,
-              const cv::Rect_<int> & _roi);
+              const cv::Rect2i & _roi);
     EtldImage(const cv::Mat_<uint8_t> & frame,
               const int & x,
               const int & y,
@@ -28,7 +29,7 @@ public:
 
     int w() const {return cols;}
     int h() const {return rows;}
-    cv::Rect_<int> & roi(){return _roi;}
+    cv::Rect2i & roi(){return _roi;}
 
     uint8_t & operator[](const int & idx){return data[idx];}
     uint8_t & operator()(const int & idx){return data[idx];}
@@ -44,8 +45,9 @@ public:
     int M();
     int D();
 private:
-    cv::Rect_<int> _roi;
+    cv::Rect2i _roi;
 };
+}
 }
 
 #endif // ETLDIMAGE_H

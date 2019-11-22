@@ -13,6 +13,8 @@
 
 namespace cv
 {
+namespace etld
+{
 template<typename T>
 static T median(const std::vector<T> & _v)
 {
@@ -76,25 +78,25 @@ EtldTracker::~EtldTracker()
 {
     deallocate();
 }
-void EtldTracker::init(const cv::Mat_<uint8_t> & frame, const etld_object & , const EtldClassifier & , const EtldModel & , const etld_settings & settings)
+void EtldTracker::init(const cv::Mat_<uint8_t> & frame, const etld_object & , const EtldClassifier & , const EtldModel & , const ETLDParams & params)
 {
     deallocate();
 
-    pyramid_levels      = settings.tracker_settings.pyramid_levels;
-    win_sz              = settings.tracker_settings.win_sz;
+    pyramid_levels      = params.tracker_settings.pyramid_levels;
+    win_sz              = params.tracker_settings.win_sz;
     win_rad             = win_sz / 2;
-    npts_width          = settings.tracker_settings.npts_width;
-    npts_height         = settings.tracker_settings.npts_height;
+    npts_width          = params.tracker_settings.npts_width;
+    npts_height         = params.tracker_settings.npts_height;
     npts_n              = npts_width * npts_height;
-    nmax_iter           = settings.tracker_settings.nmax_iter;
-    min_delta           = settings.tracker_settings.min_delta;
-    variance_thrld_div  = settings.tracker_settings.variance_thrld_div;
+    nmax_iter           = params.tracker_settings.nmax_iter;
+    min_delta           = params.tracker_settings.min_delta;
+    variance_thrld_div  = params.tracker_settings.variance_thrld_div;
     variance_thrld      = 0;
-    subgrid_sz          = settings.tracker_settings.subgrid_sz;
+    subgrid_sz          = params.tracker_settings.subgrid_sz;
     subgrid_rad         = subgrid_sz / 2;
-    max_fb_err_coeff    = settings.tracker_settings.max_fb_err_coeff;
-    min_part_for_scale  = settings.tracker_settings.min_part_for_scale;
-    use_fast            = settings.tracker_settings.use_fast;
+    max_fb_err_coeff    = params.tracker_settings.max_fb_err_coeff;
+    min_part_for_scale  = params.tracker_settings.min_part_for_scale;
+    use_fast            = params.tracker_settings.use_fast;
 
     allocate(frame.size());
 
@@ -453,5 +455,6 @@ bool EtldTracker::track (float & x0, float & y0, float & w, float & h)
     }
 
     return true;
+}
 }
 }

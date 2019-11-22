@@ -10,6 +10,8 @@
 
 namespace cv
 {
+namespace etld
+{
 EtldClassifier::EtldClassifier()
 {
     fern_n         = 10;
@@ -43,9 +45,9 @@ EtldClassifier::EtldClassifier(const EtldClassifier & c)
     memcpy(Nn,          c.Nn,          sizeof(int) * size_t(fern_nd));
     memcpy(P,           c.P,           sizeof(float) * size_t(fern_nd));
     memcpy(origin_fern, c.origin_fern, sizeof(std::pair<cv::Point_<float>, cv::Point_<float>>) * size_t(fern_nk));
-    memcpy(detect_fern, c.detect_fern, sizeof(std::pair<cv::Point_<int>, cv::Point_<int>>) * size_t(fern_nk) * DETECT_SCALES);
+    memcpy(detect_fern, c.detect_fern, sizeof(std::pair<cv::Point2i, cv::Point2i>) * size_t(fern_nk) * DETECT_SCALES);
     memcpy(simple_detect_fern, c.simple_detect_fern, sizeof(std::pair<int, int>) * size_t(fern_nk) * DETECT_SCALES);
-    memcpy(learn_fern,  c.learn_fern,  sizeof(std::pair<cv::Point_<int>, cv::Point_<int>>) * size_t(fern_nk) * LEARN_SCALES);
+    memcpy(learn_fern,  c.learn_fern,  sizeof(std::pair<cv::Point2i, cv::Point2i>) * size_t(fern_nk) * LEARN_SCALES);
 }
 void EtldClassifier::allocate()
 {
@@ -54,9 +56,9 @@ void EtldClassifier::allocate()
     Nn          = new int[fern_nd];
     P           = new float[fern_nd];
     origin_fern = new std::pair<cv::Point_<float>, cv::Point_<float>>[fern_nk];
-    detect_fern = new std::pair<cv::Point_<int>, cv::Point_<int>>[fern_nk * DETECT_SCALES];
+    detect_fern = new std::pair<cv::Point2i, cv::Point2i>[fern_nk * DETECT_SCALES];
     simple_detect_fern = new std::pair<int, int>[fern_nk * DETECT_SCALES];
-    learn_fern  = new std::pair<cv::Point_<int>, cv::Point_<int>>[fern_nk * LEARN_SCALES];
+    learn_fern  = new std::pair<cv::Point2i, cv::Point2i>[fern_nk * LEARN_SCALES];
 
     memset(Np,     0, size_t(fern_nd) * sizeof(int));
     memset(Nn,     0, size_t(fern_nd) * sizeof(int));
@@ -86,18 +88,18 @@ EtldClassifier & EtldClassifier::operator=(const EtldClassifier & c)
     memcpy(Nn,          c.Nn,          sizeof(int) * size_t(fern_nd));
     memcpy(P,           c.P,           sizeof(float) * size_t(fern_nd));
     memcpy(origin_fern, c.origin_fern, sizeof(std::pair<cv::Point_<float>, cv::Point_<float>>) * size_t(fern_nk));
-    memcpy(detect_fern, c.detect_fern, sizeof(std::pair<cv::Point_<int>, cv::Point_<int>>) * size_t(fern_nk) * DETECT_SCALES);
+    memcpy(detect_fern, c.detect_fern, sizeof(std::pair<cv::Point2i, cv::Point2i>) * size_t(fern_nk) * DETECT_SCALES);
     memcpy(simple_detect_fern, c.simple_detect_fern, sizeof(std::pair<int, int>) * size_t(fern_nk) * DETECT_SCALES);
-    memcpy(learn_fern,  c.learn_fern,  sizeof(std::pair<cv::Point_<int>, cv::Point_<int>>) * size_t(fern_nk) * LEARN_SCALES);
+    memcpy(learn_fern,  c.learn_fern,  sizeof(std::pair<cv::Point2i, cv::Point2i>) * size_t(fern_nk) * LEARN_SCALES);
 
     return *this;
 }
-void EtldClassifier::init(const cv::Mat_<uint8_t> & frame, const etld_object & object, const etld_settings & settings)
+void EtldClassifier::init(const cv::Mat_<uint8_t> & frame, const etld_object & object, const ETLDParams & params)
 {
     deallocate();
 
-    fern_n         = settings.classifier_settings.fern_n;
-    fern_k         = settings.classifier_settings.fern_k;
+    fern_n         = params.classifier_settings.fern_n;
+    fern_k         = params.classifier_settings.fern_k;
     fern_d         = int(pow(2, fern_k));
     fern_nd        = fern_n * fern_d;
     fern_nk        = fern_n * fern_k;
@@ -109,7 +111,7 @@ void EtldClassifier::init(const cv::Mat_<uint8_t> & frame, const etld_object & o
 }
 void EtldClassifier::construct_detect_fern(const int & w, const int & h, const float * scales, const int & W) const
 {
-    std::pair<cv::Point_<int>, cv::Point_<int>> * detect_fern_i = detect_fern;
+    std::pair<cv::Point2i, cv::Point2i> * detect_fern_i = detect_fern;
     std::pair<int, int> * simple_detect_fern_i = simple_detect_fern;
     for(int scale_idx = 0; scale_idx < DETECT_SCALES; ++scale_idx)
     {
@@ -130,7 +132,7 @@ void EtldClassifier::construct_detect_fern(const int & w, const int & h, const f
 }
 void EtldClassifier::construct_learn_fern(const int & w, const int & h, const float * scales) const
 {
-    std::pair<cv::Point_<int>, cv::Point_<int>> * learn_fern_i = learn_fern;
+    std::pair<cv::Point2i, cv::Point2i> * learn_fern_i = learn_fern;
     for(int scale_idx = 0; scale_idx < LEARN_SCALES; ++scale_idx)
     {
         int scaled_w = int(roundf(w * scales[scale_idx]));
@@ -147,7 +149,7 @@ void EtldClassifier::construct_learn_fern(const int & w, const int & h, const fl
 }
 void EtldClassifier::add_pos_ex(EtldImage & ex, const uint32_t & scale_idx)
 {
-    std::pair<cv::Point_<int>, cv::Point_<int>> * learn_fern_n = learn_fern + size_t(fern_nk) * scale_idx;
+    std::pair<cv::Point2i, cv::Point2i> * learn_fern_n = learn_fern + size_t(fern_nk) * scale_idx;
     int * Np_i = Np;
     for(int n = 0; n < fern_n; ++n)
     {
@@ -164,7 +166,7 @@ void EtldClassifier::add_pos_ex(EtldImage & ex, const uint32_t & scale_idx)
 }
 void EtldClassifier::add_neg_ex(EtldImage & ex, const uint32_t & scale_idx)
 {
-    std::pair<cv::Point_<int>, cv::Point_<int>> * learn_fern_n = learn_fern + size_t(fern_nk) * scale_idx;
+    std::pair<cv::Point2i, cv::Point2i> * learn_fern_n = learn_fern + size_t(fern_nk) * scale_idx;
     int * Nn_i = Nn;
     for(int n = 0; n < fern_n; ++n)
     {
@@ -192,7 +194,7 @@ void EtldClassifier::update()
 }
 float EtldClassifier::R(EtldImage & p) const
 {
-    std::pair<cv::Point_<int>, cv::Point_<int>> * fern = new std::pair<cv::Point_<int>, cv::Point_<int>>[fern_nk];
+    std::pair<cv::Point2i, cv::Point2i> * fern = new std::pair<cv::Point2i, cv::Point2i>[fern_nk];
     int w = p.w();
     int h = p.h();
     for(int nk = 0; nk < fern_nk; ++nk)
@@ -202,7 +204,7 @@ float EtldClassifier::R(EtldImage & p) const
         fern[nk].second.x = int(roundf(w * origin_fern[nk].second.x));
         fern[nk].second.y = int(roundf(h * origin_fern[nk].second.y));
     }
-    std::pair<cv::Point_<int>, cv::Point_<int>> * fern_i = fern;
+    std::pair<cv::Point2i, cv::Point2i> * fern_i = fern;
     float * P_i = P;
     float r = 0;
     for(int i = 0; i < fern_n; ++i)
@@ -218,7 +220,7 @@ float EtldClassifier::R(EtldImage & p) const
 }
 float EtldClassifier::detect_R(EtldImage & p, const uint32_t & scale_idx) const
 {
-    std::pair<cv::Point_<int>, cv::Point_<int>> * detect_fern_n = detect_fern + size_t(fern_nk) * scale_idx;
+    std::pair<cv::Point2i, cv::Point2i> * detect_fern_n = detect_fern + size_t(fern_nk) * scale_idx;
     float * P_i = P;
     float r = 0;
     for(int n = 0; n < fern_n; ++n)
@@ -248,7 +250,7 @@ float EtldClassifier::detect_R(EtldSimpleImage & p, const uint32_t & scale_idx) 
 }
 float EtldClassifier::learn_R(EtldImage & p, const uint32_t & scale_idx) const
 {
-    std::pair<cv::Point_<int>, cv::Point_<int>> * learn_fern_n = learn_fern + size_t(fern_nk) * scale_idx;
+    std::pair<cv::Point2i, cv::Point2i> * learn_fern_n = learn_fern + size_t(fern_nk) * scale_idx;
     float * P_i = P;
     float r = 0;
     for(int n = 0; n < fern_n; ++n)
@@ -261,7 +263,7 @@ float EtldClassifier::learn_R(EtldImage & p, const uint32_t & scale_idx) const
     r /= fern_n;
     return r;
 }
-inline int EtldClassifier::z(EtldImage & p, std::pair<cv::Point_<int>, cv::Point_<int>> * fern) const
+inline int EtldClassifier::z(EtldImage & p, std::pair<cv::Point2i, cv::Point2i> * fern) const
 {
     int z = 0;
     for(int k = 0; k < fern_k; ++k)
@@ -281,7 +283,7 @@ inline int EtldClassifier::z(EtldImage & p, std::pair<int, int> * fern) const
     }
     return z;
 }
-inline int EtldClassifier::z(EtldSimpleImage & p, std::pair<cv::Point_<int>, cv::Point_<int>> * fern) const
+inline int EtldClassifier::z(EtldSimpleImage & p, std::pair<cv::Point2i, cv::Point2i> * fern) const
 {
     int z = 0;
     for(int k = 0; k < fern_k; ++k)
@@ -388,5 +390,6 @@ void EtldClassifier::deallocate()
 EtldClassifier::~EtldClassifier()
 {
     deallocate();
+}
 }
 }

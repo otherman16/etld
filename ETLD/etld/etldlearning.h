@@ -2,21 +2,22 @@
 #define ETLDLEARNING_H
 
 #include "etld/etld_global.h"
+#include "etld/etldparams.h"
 
 namespace cv
+{
+namespace etld
 {
 class EtldImage;
 class EtldClassifier;
 class EtldModel;
-
-using namespace etld;
 class EtldLearning
 {
 public:
     EtldLearning();
     ~EtldLearning();
 
-    void init(const cv::Mat_<uint8_t> & frame, const etld_object & object, EtldClassifier & classifier, EtldModel & model, const etld_settings & settings);
+    void init(const cv::Mat_<uint8_t> & frame, const etld_object & object, EtldClassifier & classifier, EtldModel & model, const ETLDParams & params);
     void update(const cv::Mat_<uint8_t> & frame, const etld_object & object, EtldClassifier & classifier, EtldModel & model);
 private:
     int m_pos_num;
@@ -37,6 +38,7 @@ private:
     float learn_scales[LEARN_SCALES];
     float learn_angles[LEARN_ANGLES];
 };
+}
 }
 
 #endif // ETLDLEARNING_H

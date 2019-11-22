@@ -4,8 +4,8 @@
 #include "etld/etld_global.h"
 namespace cv
 {
-using namespace etld;
-
+namespace etld
+{
 class EtldSimpleImage
 {
 private:
@@ -72,7 +72,7 @@ public:
         _n0(x + y * frame.cols),
         data(&f[x + y * frame.cols]){}
     EtldSimpleImage(const cv::Mat_<uint8_t> & frame,
-                    const cv::Rect_<int> & roi):
+                    const cv::Rect2i & roi):
         _is_fragment(true),
         f(frame.data),
         _W(frame.cols),
@@ -98,7 +98,7 @@ public:
     int n() const {return _n;}
     size_t total() const {return size_t(_n);}
     int n0() const {return _n0;}
-    cv::Rect_<int> roi(){return cv::Rect_<int>(_x, _y, _w, _h);}
+    cv::Rect2i roi(){return cv::Rect2i(_x, _y, _w, _h);}
 
     uint8_t & operator[](const int & i){return f[_n0 + i];}
     uint8_t & operator()(const int & i){return f[_n0 + (i % _W) + (i / _W) * _W];}
@@ -121,6 +121,7 @@ public:
 public:
     uint8_t * data;
 };
+}
 }
 
 #endif // ETLDSIMPLEIMAGE_H

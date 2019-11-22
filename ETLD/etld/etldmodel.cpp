@@ -6,6 +6,8 @@
 
 namespace cv
 {
+namespace etld
+{
 EtldModel::EtldModel()
 {
     ex_w = 15;
@@ -96,15 +98,15 @@ EtldImage ** EtldModel::get_neg_exs(int & n)
     n = neg_ex_n;
     return neg_ex;
 }
-void EtldModel::init(const cv::Mat_<uint8_t> &, const etld_object & , const etld_settings & settings)
+void EtldModel::init(const cv::Mat_<uint8_t> &, const etld_object & , const ETLDParams & params)
 {
     deallocate();
 
-    ex_w = settings.model_settings.ex_w;
-    ex_h = settings.model_settings.ex_h;
+    ex_w = params.model_settings.ex_w;
+    ex_h = params.model_settings.ex_h;
     ex_wh = ex_w * ex_h;
-    ex_n = settings.model_settings.ex_n;
-    ex_const_n = settings.model_settings.ex_const_n;
+    ex_n = params.model_settings.ex_n;
+    ex_const_n = params.model_settings.ex_const_n;
     pos_ex_idx = 0;
     neg_ex_idx = 0;
     pos_ex_n = 0;
@@ -198,5 +200,6 @@ void EtldModel::deallocate()
 EtldModel::~EtldModel()
 {
     deallocate();
+}
 }
 }

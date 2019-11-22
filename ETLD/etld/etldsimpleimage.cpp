@@ -2,6 +2,8 @@
 
 namespace cv
 {
+namespace etld
+{
 void EtldSimpleImage::copyTo(EtldSimpleImage & img)
 {
     if((img.w() != _w) || (img.h() != _h)) return;
@@ -109,7 +111,7 @@ void EtldSimpleImage::set(const int & val)
 }
 float EtldSimpleImage::O(EtldSimpleImage & img)
 {
-    cv::Rect_<int> overlap_roi = this->roi() & img.roi();
+    cv::Rect2i overlap_roi = this->roi() & img.roi();
     float s1 = float(this->roi().area());
     float s2 = float(img.roi().area());
     float s = float(overlap_roi.area());
@@ -145,5 +147,6 @@ int EtldSimpleImage::M()
     }
     m /= _n;
     return m;
+}
 }
 }
