@@ -12,7 +12,7 @@ static cv::Point2i pt0 = {0, 0}, pt1 = {0, 0};
 static bool init = false, deinit = false;
 static mutex mouse_callback_mutex;
 
-static void mouse_callback(int event, int x, int y, int flags, void* userdata)
+static void mouse_callback(int event, int x, int y, int /*flags*/, void* /*userdata*/)
 {
     switch(event)
     {
@@ -61,16 +61,27 @@ int main()
     cv::namedWindow("Frame", cv::WINDOW_NORMAL);
     cv::setMouseCallback("Frame", mouse_callback, nullptr);
     cv::Mat frame, gray;
-    cv::Rect_<int> etld_roi;
     cv::etld_object obj;
     cv::ETLD etld;
+    cv::FileStorage fs_read("etld.xml", cv::FileStorage::READ);
+    if(fs_read.isOpened())
+    {
+        etld.read(fs_read["etld_settings"]);
+    }
+    else
+    {
+        cv::FileStorage fs_write("etld.xml", cv::FileStorage::WRITE);
+        etld.write(fs_write);
+        fs_write.release();
+    }
+    fs_read.release();
 
     while(true)
     {
         video_capture >> frame;
         if(!frame.empty())
         {
-            cv::resize(frame, frame, cv::Size(1920, 1440), 0, 0, cv::INTER_CUBIC);
+//            cv::resize(frame, frame, cv::Size(1920, 1440), 0, 0, cv::INTER_CUBIC);
             cv::cvtColor(frame, gray, cv::COLOR_BGR2GRAY);
 
 //            cv::Mat noise(gray.size(), gray.type());
@@ -91,18 +102,17 @@ int main()
             else if(init)
             {
                 init = false;
-                cv::Rect target(cv::min(pt0.x, pt1.x), cv::min(pt0.y, pt1.y), cv::abs(pt0.x - pt1.x), cv::abs(pt0.y - pt1.y));
-                etld.init(target);
+                cv::Rect2d target(cv::min(pt0.x, pt1.x), cv::min(pt0.y, pt1.y), cv::abs(pt0.x - pt1.x), cv::abs(pt0.y - pt1.y));
+                etld.init(gray, target);
             }
-            if(etld.isOn())
+            else
             {
-                etld.new_frame(gray, etld_roi);
-                etld.get_object(&obj);
-                if(obj.valid)
+                cv::Rect2d target;
+                bool valid = etld.update(gray, target);
+                if(valid)
                 {
-                    cv::rectangle(frame, obj.window, cv::Scalar(0, 255, 0), 2);
+                    cv::rectangle(frame, target, cv::Scalar(0, 255, 0), 2);
                 }
-                cout << etld.str_timings() << endl;
             }
             mouse_callback_mutex.unlock();
 

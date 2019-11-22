@@ -2,6 +2,8 @@
 
 namespace cv
 {
+namespace etld
+{
 static void make_offsets(int * pixel, int row_stride)
 {
         pixel[0] = 0 + row_stride * 3;
@@ -2947,5 +2949,6 @@ void my_fast_detect(const fast_byte* im, int xsize, int ysize, int stride, int b
     }
     end:
     *ret_num_corners = num_corners;
+}
 }
 }

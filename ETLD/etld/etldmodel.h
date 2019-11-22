@@ -2,12 +2,13 @@
 #define ETLDMODEL_H
 
 #include "etld/etld_global.h"
+#include "etld/etldparams.h"
 
 namespace cv
 {
+namespace etld
+{
 class EtldImage;
-
-using namespace etld;
 class EtldModel
 {
 public:
@@ -19,7 +20,7 @@ public:
 
     EtldModel & operator=(const EtldModel & m);
 
-    void init(const cv::Mat_<uint8_t> & frame, const etld_object & object, const etld_settings & settings);
+    void init(const cv::Mat_<uint8_t> & frame, const etld_object & object, const ETLDParams & params);
     void add_pos_ex(EtldImage &);
     void add_neg_ex(EtldImage &);
 
@@ -45,6 +46,7 @@ private:
     EtldImage ** pos_ex;
     EtldImage ** neg_ex;
 };
+}
 }
 
 #endif // ETLDMODEL_H

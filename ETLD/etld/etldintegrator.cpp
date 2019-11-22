@@ -7,6 +7,8 @@
 
 namespace cv
 {
+namespace etld
+{
 EtldIntegrator::EtldIntegrator()
 {
     c_thrld = 0.7f;
@@ -18,13 +20,13 @@ EtldIntegrator::EtldIntegrator()
 EtldIntegrator::~EtldIntegrator()
 {
 }
-void EtldIntegrator::init(const cv::Mat_<uint8_t> & , const etld_object & , const EtldClassifier & , const EtldModel & , const etld_settings & settings)
+void EtldIntegrator::init(const cv::Mat_<uint8_t> & , const etld_object & , const EtldClassifier & , const EtldModel & , const ETLDParams & params)
 {
-    c_thrld = settings.integrator_settings.c_thrld;
-    overlap_thrld = settings.integrator_settings.overlap_thrld;
-    frames_valid = settings.integrator_settings.frames_valid;
-    a_xy = settings.integrator_settings.a_xy;
-    a_wh = settings.integrator_settings.a_wh;
+    c_thrld = params.integrator_settings.c_thrld;
+    overlap_thrld = params.integrator_settings.overlap_thrld;
+    frames_valid = params.integrator_settings.frames_valid;
+    a_xy = params.integrator_settings.a_xy;
+    a_wh = params.integrator_settings.a_wh;
 }
 void EtldIntegrator::integrate(etld_object & object, const etld_tracker_candidate & tracker_candidate, const etld_detector_candidate * detector_candidates, const int & detector_candidates_num)
 {
@@ -323,14 +325,15 @@ void EtldIntegrator::clusterise(const etld_detector_candidate * detector_candida
         clusters[i].window.height  = int(roundf(h_R));
     }
 }
-float EtldIntegrator::overlap(const cv::Rect_<int> & p0, const cv::Rect_<int> & p1)
+float EtldIntegrator::overlap(const cv::Rect2i & p0, const cv::Rect2i & p1)
 {
-    cv::Rect_<int> overlap_roi = p0 & p1;
+    cv::Rect2i overlap_roi = p0 & p1;
     float s1 = float(p0.area());
     float s2 = float(p1.area());
     float s = float(overlap_roi.area());
     if(s == 0.0f) return 0.0f;
     float o = (s1 < s2) ? (s1 / s) : (s2 / s);
     return o;
+}
 }
 }

@@ -2,20 +2,21 @@
 #define ETLDDETECTOR_H
 
 #include "etld/etld_global.h"
+#include "etld/etldparams.h"
 
 namespace cv
 {
+namespace etld
+{
 class EtldClassifier;
 class EtldModel;
-
-using namespace etld;
 class EtldDetector
 {
 public:
     EtldDetector();
     ~EtldDetector();
 
-    void init(const cv::Mat_<uint8_t> & frame, const etld_object & object, const EtldClassifier & classifier, const EtldModel & model, const etld_settings & settings);
+    void init(const cv::Mat_<uint8_t> & frame, const etld_object & object, const EtldClassifier & classifier, const EtldModel & model, const ETLDParams & params);
     int detect(const cv::Mat_<uint8_t> & frame, const etld_object & object, etld_detector_candidate * candidates, const EtldClassifier & classifier, const EtldModel & model);
 private:
     int grid_step;
@@ -28,6 +29,7 @@ private:
     float min_scale;
     float max_scale;
 };
+}
 }
 
 #endif // ETLDDETECTOR_H

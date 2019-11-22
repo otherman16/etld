@@ -14,6 +14,7 @@ SOURCES += \
         etld/etldintegrator.cpp \
         etld/etldlearning.cpp \
         etld/etldmodel.cpp \
+        etld/etldparams.cpp \
         etld/etldsimpleimage.cpp \
         etld/etldtracker.cpp \
         etld/my_fast.cpp \
@@ -29,6 +30,7 @@ HEADERS += \
     etld/etldintegrator.h \
     etld/etldlearning.h \
     etld/etldmodel.h \
+    etld/etldparams.h \
     etld/etldsimpleimage.h \
     etld/etldtracker.h \
     etld/my_fast.h
@@ -59,8 +61,7 @@ LIBS += \
 -lopencv_imgproc \
 -lopencv_imgcodecs \
 -lopencv_videoio \
--lopencv_highgui \
--lopencv_tracking
+-lopencv_highgui
 }
 #---------------------------------------------------------------------------
 #----- Install RUN

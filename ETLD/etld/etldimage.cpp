@@ -2,14 +2,16 @@
 
 namespace cv
 {
+namespace etld
+{
 EtldImage::EtldImage(const int & w,
                      const int & h) :
     cv::Mat_<uint8_t>(h, w),
-    _roi(cv::Rect_<int>(0, 0, w, h))
+    _roi(cv::Rect2i(0, 0, w, h))
 {
 }
 EtldImage::EtldImage(const cv::Mat_<uint8_t> & frame,
-                     const cv::Rect_<int> & roi):
+                     const cv::Rect2i & roi):
     cv::Mat_<uint8_t>(frame, roi),
     _roi(roi)
 {
@@ -19,8 +21,8 @@ EtldImage::EtldImage(const cv::Mat_<uint8_t> & frame,
                      const int & y,
                      const int & w,
                      const int & h):
-    cv::Mat_<uint8_t>(frame, cv::Rect_<int>(x, y, w, h)),
-    _roi(cv::Rect_<int>(x, y, w, h))
+    cv::Mat_<uint8_t>(frame, cv::Rect2i(x, y, w, h)),
+    _roi(cv::Rect2i(x, y, w, h))
 {
 }
 EtldImage::EtldImage(uint8_t * f,
@@ -30,8 +32,8 @@ EtldImage::EtldImage(uint8_t * f,
                      const int & y,
                      const int & w,
                      const int & h):
-    cv::Mat_<uint8_t>(cv::Mat_<uint8_t>(int(H), int(W), f, cv::Mat::AUTO_STEP), cv::Rect_<int>(x, y, w, h)),
-    _roi(cv::Rect_<int>(x, y, w, h))
+    cv::Mat_<uint8_t>(cv::Mat_<uint8_t>(int(H), int(W), f, cv::Mat::AUTO_STEP), cv::Rect2i(x, y, w, h)),
+    _roi(cv::Rect2i(x, y, w, h))
 {
 }
 void EtldImage::bilin_scale(EtldImage & scaled_img)
@@ -60,7 +62,7 @@ void EtldImage::set(const int & val)
 }
 float EtldImage::O(EtldImage & img)
 {
-    cv::Rect_<int> overlap_roi = _roi & img.roi();
+    cv::Rect2i overlap_roi = _roi & img.roi();
     float s1 = float(_roi.area());
     float s2 = float(img.roi().area());
     float s = float(overlap_roi.area());
@@ -81,5 +83,6 @@ int EtldImage::D()
     cv::meanStdDev(*this, obj_mean, obj_stddev);
     int D = int(round(obj_stddev.val[0]));
     return D;
+}
 }
 }
