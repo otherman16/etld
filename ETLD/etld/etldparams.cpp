@@ -19,10 +19,10 @@ ETLDParams::ETLDParams()
     detector_settings.r_thrld = 0.7f;
     detector_settings.max_candidates_num = 8;
     detector_settings.detect_scales[0] = 1.00f;
-    detector_settings.detect_scales[1] = 0.75f;
-    detector_settings.detect_scales[2] = 1.25f;
-    detector_settings.min_scale        = 0.80f;
-    detector_settings.max_scale        = 1.20f;
+    detector_settings.detect_scales[1] = 0.80f;
+    detector_settings.detect_scales[2] = 1.20f;
+    detector_settings.min_scale        = 0.75f;
+    detector_settings.max_scale        = 1.50f;
 
     tracker_settings.pyramid_levels        = 3;
     tracker_settings.win_sz                = 5;
@@ -55,11 +55,11 @@ ETLDParams::ETLDParams()
     learning_settings.pos_c_max         = integrator_settings.c_thrld + 0.1f;//0.7f;
     learning_settings.overlap_thrld     = 0.5f;
     learning_settings.learn_scales[0]   = 1.00f;
-    learning_settings.learn_scales[1]   = 0.75f;
-    learning_settings.learn_scales[2]   = 1.25f;
+    learning_settings.learn_scales[1]   = 0.80f;
+    learning_settings.learn_scales[2]   = 1.20f;
     learning_settings.learn_angles[0]   = 0.00f;
-    learning_settings.learn_angles[1]   = -0.25f;
-    learning_settings.learn_angles[2]   = 0.34f;
+    learning_settings.learn_angles[1]   = -2.5f;
+    learning_settings.learn_angles[2]   = 2.5f;
 }
 
 void ETLDParams::read(const FileNode & fn)

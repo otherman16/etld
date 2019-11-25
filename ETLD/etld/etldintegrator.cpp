@@ -97,7 +97,7 @@ void EtldIntegrator::integrate(etld_object & object, const etld_tracker_candidat
                         sum_weights_C += weights[i];
                         sum_weights_R += clusters[indexes[i]].R;
                     }
-                    if(tracker_candidate.C > c_thrld)
+                    if(tracker_candidate.C > c_thrld && tracker_candidate.window.width > 20 && tracker_candidate.window.height > 20)
                     {
                         sum_weights_C += tracker_candidate.C;
                     }
@@ -113,7 +113,7 @@ void EtldIntegrator::integrate(etld_object & object, const etld_tracker_candidat
                         w_C  += ( clusters[indexes[i]].window.width * weights[i] );
                         h_C  += ( clusters[indexes[i]].window.height * weights[i] );
                     }
-                    if(tracker_candidate.C > c_thrld)
+                    if(tracker_candidate.C > c_thrld && tracker_candidate.window.width > 20 && tracker_candidate.window.height > 20)
                     {
                         x0_C += ( tracker_candidate.window.x * tracker_candidate.C );
                         y0_C += ( tracker_candidate.window.y * tracker_candidate.C );

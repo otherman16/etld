@@ -11,6 +11,8 @@
 
 #include <vector>
 
+#define CV_OPTFLOW
+
 namespace cv
 {
 namespace etld
@@ -106,11 +108,13 @@ void EtldTracker::count_pyramid(const cv::Mat_<uint8_t> & prev_frame, const cv::
 {
     prev_frame.copyTo(*prev_pyr[0]);
     frame.copyTo(*cur_pyr[0]);
+#ifndef CV_OPTFLOW
     for(int level = 1; level < pyramid_levels; ++level)
     {
         cv::resize(*prev_pyr[level - 1], *prev_pyr[level], prev_pyr[level]->size(), 0.0, 0.0, cv::INTER_NEAREST);
         cv::resize(*cur_pyr[level - 1], *cur_pyr[level], cur_pyr[level]->size(), 0.0, 0.0, cv::INTER_NEAREST);
     }
+#endif
 }
 void EtldTracker::allocate(const cv::Size & size)
 {
@@ -335,8 +339,10 @@ bool EtldTracker::track (float & x0, float & y0, float & w, float & h)
                 float x = x0 + sp[i].x;
                 float y = y0 + sp[i].y;
                 points[0].push_back(cv::Point2f(x, y));
+#ifndef CV_OPTFLOW
                 points[1].push_back(cv::Point2f(x, y));
                 points[2].push_back(cv::Point2f(x, y));
+#endif
                 status.push_back(true);
             }
         }
@@ -357,8 +363,10 @@ bool EtldTracker::track (float & x0, float & y0, float & w, float & h)
                 if( var > variance_thrld )
                 {
                     points[0].push_back(cv::Point2f(x, y));
+#ifndef CV_OPTFLOW
                     points[1].push_back(cv::Point2f(x, y));
                     points[2].push_back(cv::Point2f(x, y));
+#endif
                     status.push_back(true);
                 }
             }
@@ -370,15 +378,19 @@ bool EtldTracker::track (float & x0, float & y0, float & w, float & h)
         return false;
     }
 
+#ifdef CV_OPTFLOW
+    //************************************************************************************
+    std::vector<float> err;
+    cv::TermCriteria termcrit(cv::TermCriteria::COUNT|cv::TermCriteria::EPS, nmax_iter, min_delta);
+    cv::calcOpticalFlowPyrLK(*prev_pyr[0], *cur_pyr[0], points[0], points[1], status, err, cv::Size(npts_width, npts_height), pyramid_levels, termcrit, 0, 0.0001);
+    cv::calcOpticalFlowPyrLK(*cur_pyr[0], *prev_pyr[0], points[1], points[2], status, err, cv::Size(npts_width, npts_height), pyramid_levels, termcrit, 0, 0.0001);
+    //************************************************************************************
+#else
     //************************************************************************************
     calcOpticalFlow(prev_pyr, cur_pyr, points[0], points[1], status);
     calcOpticalFlow(cur_pyr, prev_pyr, points[1], points[2], status);
     //************************************************************************************
-//    std::vector<float> err;
-//    cv::TermCriteria termcrit(cv::TermCriteria::COUNT|cv::TermCriteria::EPS, nmax_iter, min_delta);
-//    cv::calcOpticalFlowPyrLK(*prev_pyr[0], *cur_pyr[0], points[0], points[1], status, err, cv::Size(npts_width, npts_height), pyramid_levels, termcrit, 0, 0.0001);
-//    cv::calcOpticalFlowPyrLK(*cur_pyr[0], *prev_pyr[0], points[1], points[2], status, err, cv::Size(npts_width, npts_height), pyramid_levels, termcrit, 0, 0.0001);
-    //************************************************************************************
+#endif
 
     for(size_t i = 0; i < status.size(); ++i)
     {

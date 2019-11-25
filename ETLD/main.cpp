@@ -5,6 +5,7 @@ using namespace std;
 #include <opencv2/opencv.hpp>
 #include <atomic>
 #include <mutex>
+#include <sstream>
 
 #include "etld/etld.h"
 
@@ -81,7 +82,7 @@ int main()
         video_capture >> frame;
         if(!frame.empty())
         {
-//            cv::resize(frame, frame, cv::Size(1920, 1440), 0, 0, cv::INTER_CUBIC);
+            cv::resize(frame, frame, cv::Size(1920, 1440), 0, 0, cv::INTER_CUBIC);
             cv::cvtColor(frame, gray, cv::COLOR_BGR2GRAY);
 
 //            cv::Mat noise(gray.size(), gray.type());
@@ -115,6 +116,50 @@ int main()
                     cv::etld::etld_tracker_candidate tc;
                     etld->get_tracker_candidates(&tc);
                     cv::rectangle(frame, tc.window, cv::Scalar(0, 255, 255), tc.success ? 2 : 1);
+                }
+
+                int etld_time = etld->etld_time();
+                int frame_time = etld->frame_time();
+                int init_time = etld->init_time();
+                int detector_time = etld->detector_time();
+                int tracker_time = etld->tracker_time();
+                int integrator_time = etld->integrator_time();
+                int update_time = etld->update_time();
+
+                {
+                    std::ostringstream os;
+                    os << "etld_time " << etld_time;
+                    cv::putText(frame, os.str(), cv::Point2i(10, 20), cv::FONT_HERSHEY_SIMPLEX, 0.5, 255);
+                }
+                {
+                    std::ostringstream os;
+                    os << "frame_time " << frame_time;
+                    cv::putText(frame, os.str(), cv::Point2i(10, 40), cv::FONT_HERSHEY_SIMPLEX, 0.5, 255);
+                }
+                {
+                    std::ostringstream os;
+                    os << "init_time " << init_time;
+                    cv::putText(frame, os.str(), cv::Point2i(10, 60), cv::FONT_HERSHEY_SIMPLEX, 0.5, 255);
+                }
+                {
+                    std::ostringstream os;
+                    os << "detector_time " << detector_time;
+                    cv::putText(frame, os.str(), cv::Point2i(10, 80), cv::FONT_HERSHEY_SIMPLEX, 0.5, 255);
+                }
+                {
+                    std::ostringstream os;
+                    os << "tracker_time " << tracker_time;
+                    cv::putText(frame, os.str(), cv::Point2i(10, 100), cv::FONT_HERSHEY_SIMPLEX, 0.5, 255);
+                }
+                {
+                    std::ostringstream os;
+                    os << "integrator_time " << integrator_time;
+                    cv::putText(frame, os.str(), cv::Point2i(10, 120), cv::FONT_HERSHEY_SIMPLEX, 0.5, 255);
+                }
+                {
+                    std::ostringstream os;
+                    os << "update_time " << update_time;
+                    cv::putText(frame, os.str(), cv::Point2i(10, 140), cv::FONT_HERSHEY_SIMPLEX, 0.5, 255);
                 }
             }
             mouse_callback_mutex.unlock();
