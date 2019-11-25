@@ -61,17 +61,17 @@ int main()
     cv::namedWindow("Frame", cv::WINDOW_NORMAL);
     cv::setMouseCallback("Frame", mouse_callback, nullptr);
     cv::Mat frame, gray;
-    cv::etld_object obj;
-    cv::ETLD etld;
+    cv::etld::etld_object obj;
+    cv::Ptr<cv::etld::ETLD> etld = cv::etld::ETLD::create();
     cv::FileStorage fs_read("etld.xml", cv::FileStorage::READ);
     if(fs_read.isOpened())
     {
-        etld.read(fs_read["etld_settings"]);
+        etld->read(fs_read["etld_settings"]);
     }
     else
     {
         cv::FileStorage fs_write("etld.xml", cv::FileStorage::WRITE);
-        etld.write(fs_write);
+        etld->write(fs_write);
         fs_write.release();
     }
     fs_read.release();
@@ -97,21 +97,24 @@ int main()
             if(deinit)
             {
                 deinit = false;
-                etld.deinit();
+                etld->deinit();
             }
             else if(init)
             {
                 init = false;
                 cv::Rect2d target(cv::min(pt0.x, pt1.x), cv::min(pt0.y, pt1.y), cv::abs(pt0.x - pt1.x), cv::abs(pt0.y - pt1.y));
-                etld.init(gray, target);
+                etld->init(gray, target);
             }
             else
             {
                 cv::Rect2d target;
-                bool valid = etld.update(gray, target);
+                bool valid = etld->update(gray, target);
                 if(valid)
                 {
                     cv::rectangle(frame, target, cv::Scalar(0, 255, 0), 2);
+                    cv::etld::etld_tracker_candidate tc;
+                    etld->get_tracker_candidates(&tc);
+                    cv::rectangle(frame, tc.window, cv::Scalar(0, 255, 255), tc.success ? 2 : 1);
                 }
             }
             mouse_callback_mutex.unlock();
