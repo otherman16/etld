@@ -60,7 +60,13 @@ LIBS += \
 -lopencv_imgproc \
 -lopencv_imgcodecs \
 -lopencv_videoio \
--lopencv_highgui
+-lopencv_highgui \
+-lopencv_objdetect \
+-lopencv_features2d \
+-lopencv_tracking \
+-lopencv_video \
+-lopencv_calib3d \
+-lopencv_photo
 }
 #---------------------------------------------------------------------------
 #----- Install RUN
