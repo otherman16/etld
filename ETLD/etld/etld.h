@@ -17,9 +17,9 @@
 
 namespace cv
 {
-
-using namespace etld;
-class ETLD
+namespace etld
+{
+class ETLD : public Algorithm
 {
 public:
     ETLD();
@@ -43,6 +43,8 @@ public:
 
     void read( const FileNode& fn ) {params.read(fn);}
     void write( FileStorage& fs ) const {params.write(fs);}
+
+    static Ptr<ETLD> create() {return makePtr<ETLD>();}
 
 private:
     void reaim(const cv::Mat & f, cv::Rect2i & aim);
@@ -74,7 +76,7 @@ private:
     volatile int _integrator_time;
     volatile int _update_time;
 };
-
+}
 }
 
 #endif // ETLD_CLASS_H

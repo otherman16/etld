@@ -53,7 +53,6 @@ LIBS += -L$$OPENCV_SDK/x$$PLATFORM_VER/mingw/bin -lopencv_imgproc$${OPENCV_VER}
 LIBS += -L$$OPENCV_SDK/x$$PLATFORM_VER/mingw/bin -lopencv_imgcodecs$${OPENCV_VER}
 LIBS += -L$$OPENCV_SDK/x$$PLATFORM_VER/mingw/bin -lopencv_videoio$${OPENCV_VER}
 LIBS += -L$$OPENCV_SDK/x$$PLATFORM_VER/mingw/bin -lopencv_highgui$${OPENCV_VER}
-LIBS += -L$$OPENCV_SDK/x$$PLATFORM_VER/mingw/bin -lopencv_tracking$${OPENCV_VER}
 }
 unix {
 LIBS += \
@@ -73,7 +72,6 @@ dll_opencv_rt.files += $${OPENCV_SDK}/x$${PLATFORM_VER}/mingw/bin/libopencv_imgp
 dll_opencv_rt.files += $${OPENCV_SDK}/x$${PLATFORM_VER}/mingw/bin/libopencv_imgcodecs$${OPENCV_VER}.dll
 dll_opencv_rt.files += $${OPENCV_SDK}/x$${PLATFORM_VER}/mingw/bin/libopencv_videoio$${OPENCV_VER}.dll
 dll_opencv_rt.files += $${OPENCV_SDK}/x$${PLATFORM_VER}/mingw/bin/libopencv_highgui$${OPENCV_VER}.dll
-dll_opencv_rt.files += $${OPENCV_SDK}/x$${PLATFORM_VER}/mingw/bin/libopencv_tracking$${OPENCV_VER}.dll
 
 INSTALLS += dll_opencv_rt
 }
@@ -125,7 +123,6 @@ CONFIG(release, debug|release) {
     dll_opencv.files += $${OPENCV_SDK}/x$${PLATFORM_VER}/mingw/bin/libopencv_imgcodecs$${OPENCV_VER}.dll
     dll_opencv.files += $${OPENCV_SDK}/x$${PLATFORM_VER}/mingw/bin/libopencv_videoio$${OPENCV_VER}.dll
     dll_opencv.files += $${OPENCV_SDK}/x$${PLATFORM_VER}/mingw/bin/libopencv_highgui$${OPENCV_VER}.dll
-    dll_opencv.files += $${OPENCV_SDK}/x$${PLATFORM_VER}/mingw/bin/libopencv_tracking$${OPENCV_VER}.dll
 
     target.path = $${OUT_DIR}
 

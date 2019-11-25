@@ -11,7 +11,8 @@ using namespace std;
 #include <opencv2/tracking.hpp>
 namespace cv
 {
-
+namespace etld
+{
 ETLD::ETLD()
 {
     _on = false;
@@ -205,4 +206,5 @@ ETLD::~ETLD()
     deinit();
 }
 
+}
 }

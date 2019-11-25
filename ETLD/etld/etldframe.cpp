@@ -201,8 +201,6 @@ void EtldFrame::choose_find_subframe(const cv::Rect2i &)
 }
 void EtldFrame::calculate_smoothed_subframe()
 {
-//    cv::blur(*subframe, *smoothed_subframe, cv::Size(7, 7));
-//    cv::blur(*prev_subframe, *prev_smoothed_subframe, cv::Size(7, 7));
     double sigma = 1.5;
     int size = int(round(sigma * 6));
     cv::GaussianBlur(*subframe, *smoothed_subframe, cv::Size(size, size), sigma);
