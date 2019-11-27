@@ -11,7 +11,7 @@
 
 #include <vector>
 
-#define CV_OPTFLOW
+//#define CV_OPTFLOW
 
 namespace cv
 {

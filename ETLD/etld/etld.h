@@ -23,6 +23,7 @@ class ETLD : public Algorithm
 {
 public:
     ETLD();
+    ETLD(const ETLDParams & params);
     ~ETLD();
 
     inline int etld_time() const {return _etld_time;}
@@ -44,7 +45,10 @@ public:
     void read( const FileNode& fn ) {params.read(fn);}
     void write( FileStorage& fs ) const {params.write(fs);}
 
+    inline ETLDParams * ptr_params() {return &params;}
+
     static Ptr<ETLD> create() {return makePtr<ETLD>();}
+    static Ptr<ETLD> create(const ETLDParams & params) {return makePtr<ETLD>(params);}
 
 private:
     void reaim(const cv::Mat & f, cv::Rect2i & aim);
