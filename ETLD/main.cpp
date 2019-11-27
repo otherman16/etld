@@ -64,18 +64,18 @@ int main()
     cv::Mat frame, gray;
     cv::etld::etld_object obj;
     cv::Ptr<cv::etld::ETLD> etld = cv::etld::ETLD::create();
-    cv::FileStorage fs_read("etld.xml", cv::FileStorage::READ);
-    if(fs_read.isOpened())
-    {
-        etld->read(fs_read["etld_settings"]);
-    }
-    else
-    {
-        cv::FileStorage fs_write("etld.xml", cv::FileStorage::WRITE);
-        etld->write(fs_write);
-        fs_write.release();
-    }
-    fs_read.release();
+//    cv::FileStorage fs_read("etld.xml", cv::FileStorage::READ);
+//    if(fs_read.isOpened())
+//    {
+//        etld->read(fs_read["etld_settings"]);
+//    }
+//    else
+//    {
+//        cv::FileStorage fs_write("etld.xml", cv::FileStorage::WRITE);
+//        etld->write(fs_write);
+//        fs_write.release();
+//    }
+//    fs_read.release();
 
     while(true)
     {
@@ -84,15 +84,6 @@ int main()
         {
             cv::resize(frame, frame, cv::Size(1920, 1440), 0, 0, cv::INTER_CUBIC);
             cv::cvtColor(frame, gray, cv::COLOR_BGR2GRAY);
-
-//            cv::Mat noise(gray.size(), gray.type());
-//            cv::Mat m(1, 1, CV_32FC1);
-//            m = cv::Scalar(2);
-//            cv::Mat sigma(1, 1, CV_32FC1);
-//            sigma = cv::Scalar(4);
-//            cv::randn(noise, m, sigma);
-//            cv::Mat ngray = gray + noise;
-//            cv::imshow("ngray", ngray);
 
             mouse_callback_mutex.lock();
             if(deinit)
@@ -116,6 +107,12 @@ int main()
                     cv::etld::etld_tracker_candidate tc;
                     etld->get_tracker_candidates(&tc);
                     cv::rectangle(frame, tc.window, cv::Scalar(0, 255, 255), tc.success ? 2 : 1);
+                    cv::etld::etld_detector_candidate dc[8];
+                    int dc_num = etld->get_detector_candidates(dc);
+                    for(int i = 0; i < dc_num; ++i)
+                    {
+                        cv::rectangle(frame, dc[i].window, cv::Scalar(255, 0, 0), 1);
+                    }
                 }
 
                 int etld_time = etld->etld_time();

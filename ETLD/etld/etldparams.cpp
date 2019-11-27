@@ -85,18 +85,23 @@ void ETLDParams::write(FileStorage & fs) const
 
 void ETLDParams::read_model_settings(const FileNode & fn)
 {
+#ifdef OPENCV4
     model_settings.ex_w = int(fn["ex_w"].real());
     model_settings.ex_h = int(fn["ex_h"].real());
     model_settings.ex_n = int(fn["ex_n"].real());
     model_settings.ex_const_n = int(fn["ex_const_n"].real());
+#endif
 }
 void ETLDParams::read_classifier_settings(const FileNode & fn)
 {
+#ifdef OPENCV4
     classifier_settings.fern_n = int(fn["fern_n"].real());
     classifier_settings.fern_k = int(fn["fern_k"].real());
+#endif
 }
 void ETLDParams::read_detector_settings(const FileNode & fn)
 {
+#ifdef OPENCV4
     detector_settings.grid_step = int(fn["grid_step"].real());
     detector_settings.r_thrld = float(fn["r_thrld"].real());
     detector_settings.max_candidates_num = int(fn["max_candidates_num"].real());
@@ -105,9 +110,11 @@ void ETLDParams::read_detector_settings(const FileNode & fn)
     detector_settings.detect_scales[2] = float(fn["detect_scales_2"].real());
     detector_settings.min_scale = float(fn["min_scale"].real());
     detector_settings.max_scale = float(fn["max_scale"].real());
+#endif
 }
 void ETLDParams::read_tracker_settings(const FileNode & fn)
 {
+#ifdef OPENCV4
     tracker_settings.pyramid_levels = int(fn["pyramid_levels"].real());
     tracker_settings.win_sz = int(fn["win_sz"].real());
     tracker_settings.npts_width = int(fn["npts_width"].real());
@@ -119,17 +126,21 @@ void ETLDParams::read_tracker_settings(const FileNode & fn)
     tracker_settings.max_fb_err_coeff = float(fn["max_fb_err_coeff"].real());
     tracker_settings.min_part_for_scale = float(fn["min_part_for_scale"].real());
     tracker_settings.use_fast = bool(fn["use_fast"].real());
+#endif
 }
 void ETLDParams::read_integrator_settings(const FileNode & fn)
 {
+#ifdef OPENCV4
     integrator_settings.c_thrld = float(fn["c_thrld"].real());
     integrator_settings.overlap_thrld = float(fn["overlap_thrld"].real());
     integrator_settings.frames_valid = int(fn["frames_valid"].real());
     integrator_settings.a_xy = float(fn["a_xy"].real());
     integrator_settings.a_wh = float(fn["a_wh"].real());
+#endif
 }
 void ETLDParams::read_learning_settings(const FileNode & fn)
 {
+#ifdef OPENCV4
     learning_settings.reaim_en = bool(fn["reaim_en"].real());
     learning_settings.reaim_D_thrld_div = int(fn["reaim_D_thrld_div"].real());
     learning_settings.fast_update = bool(fn["fast_update"].real());
@@ -148,27 +159,33 @@ void ETLDParams::read_learning_settings(const FileNode & fn)
     learning_settings.learn_angles[0] = float(fn["learn_angles_0"].real());
     learning_settings.learn_angles[1] = float(fn["learn_angles_1"].real());
     learning_settings.learn_angles[2] = float(fn["learn_angles_2"].real());
+#endif
 }
 
 void ETLDParams::write_model_settings(FileStorage & fs) const
 {
     fs << "model_settings" << "{";
+#ifdef OPENCV4
     fs.write("ex_w", model_settings.ex_w);
     fs.write("ex_h", model_settings.ex_h);
     fs.write("ex_n", model_settings.ex_n);
     fs.write("ex_const_n", model_settings.ex_const_n);
+#endif
     fs << "}";
 }
 void ETLDParams::write_classifier_settings(FileStorage & fs) const
 {
     fs << "classifier_settings" << "{";
+#ifdef OPENCV4
     fs.write("fern_n", classifier_settings.fern_n);
     fs.write("fern_k", classifier_settings.fern_k);
+#endif
     fs << "}";
 }
 void ETLDParams::write_detector_settings(FileStorage & fs) const
 {
     fs << "detector_settings" << "{";
+#ifdef OPENCV4
     fs.write("grid_step", detector_settings.grid_step);
     fs.write("r_thrld", detector_settings.r_thrld);
     fs.write("max_candidates_num", detector_settings.max_candidates_num);
@@ -177,11 +194,13 @@ void ETLDParams::write_detector_settings(FileStorage & fs) const
     fs.write("detect_scales_2", detector_settings.detect_scales[2]);
     fs.write("min_scale", detector_settings.min_scale);
     fs.write("max_scale", detector_settings.max_scale);
+#endif
     fs << "}";
 }
 void ETLDParams::write_tracker_settings(FileStorage & fs) const
 {
     fs << "tracker_settings" << "{";
+#ifdef OPENCV4
     fs.write("pyramid_levels", tracker_settings.pyramid_levels);
     fs.write("win_sz", tracker_settings.win_sz);
     fs.write("npts_width", tracker_settings.npts_width);
@@ -193,21 +212,25 @@ void ETLDParams::write_tracker_settings(FileStorage & fs) const
     fs.write("max_fb_err_coeff", tracker_settings.max_fb_err_coeff);
     fs.write("min_part_for_scale", tracker_settings.min_part_for_scale);
     fs.write("use_fast", tracker_settings.use_fast);
+#endif
     fs << "}";
 }
 void ETLDParams::write_integrator_settings(FileStorage & fs) const
 {
     fs << "integrator_settings" << "{";
+#ifdef OPENCV4
     fs.write("c_thrld", integrator_settings.c_thrld);
     fs.write("overlap_thrld", integrator_settings.overlap_thrld);
     fs.write("frames_valid", integrator_settings.frames_valid);
     fs.write("a_xy", integrator_settings.a_xy);
     fs.write("a_wh", integrator_settings.a_wh);
+#endif
     fs << "}";
 }
 void ETLDParams::write_learning_settings(FileStorage & fs) const
 {
     fs << "learning_settings" << "{";
+#ifdef OPENCV4
     fs.write("reaim_en", learning_settings.reaim_en);
     fs.write("reaim_D_thrld_div", learning_settings.reaim_D_thrld_div);
     fs.write("fast_update", learning_settings.fast_update);
@@ -226,6 +249,7 @@ void ETLDParams::write_learning_settings(FileStorage & fs) const
     fs.write("learn_angles_0", learning_settings.learn_angles[0]);
     fs.write("learn_angles_1", learning_settings.learn_angles[1]);
     fs.write("learn_angles_2", learning_settings.learn_angles[2]);
+#endif
     fs << "}";
 }
 

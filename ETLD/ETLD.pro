@@ -6,20 +6,19 @@ CONFIG -= qt
 CONFIG(debug, debug|release):  DEFINES += DEBUG
 
 SOURCES += \
-        etld/etld.cpp \
-        etld/etldclassifier.cpp \
-        etld/etlddetector.cpp \
-        etld/etldframe.cpp \
-        etld/etldimage.cpp \
-        etld/etldintegrator.cpp \
-        etld/etldlearning.cpp \
-        etld/etldmodel.cpp \
-        etld/etldparams.cpp \
-        etld/etldsimpleimage.cpp \
-        etld/etldtracker.cpp \
-        etld/my_fast.cpp \
-        main.cpp
-
+    etld/etld.cpp \
+    etld/etldclassifier.cpp \
+    etld/etlddetector.cpp \
+    etld/etldframe.cpp \
+    etld/etldimage.cpp \
+    etld/etldintegrator.cpp \
+    etld/etldlearning.cpp \
+    etld/etldmodel.cpp \
+    etld/etldparams.cpp \
+    etld/etldsimpleimage.cpp \
+    etld/etldtracker.cpp \
+    etld/my_fast.cpp \
+    main.cpp
 HEADERS += \
     etld/etld.h \
     etld/etld_global.h \
@@ -34,7 +33,6 @@ HEADERS += \
     etld/etldsimpleimage.h \
     etld/etldtracker.h \
     etld/my_fast.h
-
 #---------------------------------------------------------------------------
 #----- Platform Version
 #---------------------------------------------------------------------------
@@ -53,20 +51,21 @@ LIBS += -L$$OPENCV_SDK/x$$PLATFORM_VER/mingw/bin -lopencv_imgproc$${OPENCV_VER}
 LIBS += -L$$OPENCV_SDK/x$$PLATFORM_VER/mingw/bin -lopencv_imgcodecs$${OPENCV_VER}
 LIBS += -L$$OPENCV_SDK/x$$PLATFORM_VER/mingw/bin -lopencv_videoio$${OPENCV_VER}
 LIBS += -L$$OPENCV_SDK/x$$PLATFORM_VER/mingw/bin -lopencv_highgui$${OPENCV_VER}
+LIBS += -L$$OPENCV_SDK/x$$PLATFORM_VER/mingw/bin -lopencv_video$${OPENCV_VER}
 }
+CONFIG += OPENCV4
 unix {
+CONFIG(OPENCV4) {
+DEFINES += OPENCV4
+INCLUDEPATH += /usr/local/include/opencv4
+}
 LIBS += \
 -lopencv_core \
 -lopencv_imgproc \
 -lopencv_imgcodecs \
 -lopencv_videoio \
 -lopencv_highgui \
--lopencv_objdetect \
--lopencv_features2d \
--lopencv_tracking \
--lopencv_video \
--lopencv_calib3d \
--lopencv_photo
+-lopencv_video
 }
 #---------------------------------------------------------------------------
 #----- Install RUN
@@ -78,7 +77,7 @@ dll_opencv_rt.files += $${OPENCV_SDK}/x$${PLATFORM_VER}/mingw/bin/libopencv_imgp
 dll_opencv_rt.files += $${OPENCV_SDK}/x$${PLATFORM_VER}/mingw/bin/libopencv_imgcodecs$${OPENCV_VER}.dll
 dll_opencv_rt.files += $${OPENCV_SDK}/x$${PLATFORM_VER}/mingw/bin/libopencv_videoio$${OPENCV_VER}.dll
 dll_opencv_rt.files += $${OPENCV_SDK}/x$${PLATFORM_VER}/mingw/bin/libopencv_highgui$${OPENCV_VER}.dll
-
+dll_opencv_rt.files += $${OPENCV_SDK}/x$${PLATFORM_VER}/mingw/bin/libopencv_video$${OPENCV_VER}.dll
 INSTALLS += dll_opencv_rt
 }
 #---------------------------------------------------------------------------
@@ -129,6 +128,7 @@ CONFIG(release, debug|release) {
     dll_opencv.files += $${OPENCV_SDK}/x$${PLATFORM_VER}/mingw/bin/libopencv_imgcodecs$${OPENCV_VER}.dll
     dll_opencv.files += $${OPENCV_SDK}/x$${PLATFORM_VER}/mingw/bin/libopencv_videoio$${OPENCV_VER}.dll
     dll_opencv.files += $${OPENCV_SDK}/x$${PLATFORM_VER}/mingw/bin/libopencv_highgui$${OPENCV_VER}.dll
+    dll_opencv.files += $${OPENCV_SDK}/x$${PLATFORM_VER}/mingw/bin/libopencv_video$${OPENCV_VER}.dll
 
     target.path = $${OUT_DIR}
 
@@ -138,9 +138,7 @@ CONFIG(release, debug|release) {
 unix {
 CONFIG(release, debug|release) {
 OUT_DIR = $${PWD}/../_$${TARGET}_$${PLATFORM}
-
 target.path = $${OUT_DIR}
-
 INSTALLS += target
 }
 }

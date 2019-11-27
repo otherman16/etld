@@ -8,12 +8,33 @@
 using namespace std;
 #include "etld/my_fast.h"
 
-#include <opencv2/tracking.hpp>
 namespace cv
 {
 namespace etld
 {
 ETLD::ETLD()
+{
+    _on = false;
+
+    roi = cv::Rect2i(0, 0, ETLD_W, ETLD_H);
+
+    object.valid = false;
+    object.tracker_reinit =  false;
+    object.update = false;
+    tracker_candidate.success = false;
+    detector_candidates_num = 0;
+    detector_candidates = nullptr;
+
+    _etld_time = 0;
+    _frame_time = 0;
+    _init_time = 0;
+    _detector_time = 0;
+    _tracker_time = 0;
+    _integrator_time = 0;
+    _update_time = 0;
+}
+ETLD::ETLD(const ETLDParams & params):
+    params(params)
 {
     _on = false;
 
