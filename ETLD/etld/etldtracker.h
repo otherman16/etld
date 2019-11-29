@@ -2,18 +2,21 @@
 #define ETLDTRACKER_H
 
 #include "etld/etld_global.h"
+#include "etld/etldparams.h"
 
+namespace cv
+{
+namespace etld
+{
 class EtldClassifier;
 class EtldModel;
-
-using namespace etld;
 class EtldTracker
 {
 public:
     EtldTracker();
     ~EtldTracker();
 
-    void init(const cv::Mat_<uint8_t> & frame, const etld_object & object, const EtldClassifier & classifier, const EtldModel & model, const etld_settings & settings);
+    void init(const cv::Mat_<uint8_t> & frame, const etld_object & object, const EtldClassifier & classifier, const EtldModel & model, const ETLDParams & params);
 
     void track(const cv::Mat_<uint8_t> & prev_frame, const cv::Mat_<uint8_t> & frame, const cv::Mat_<uint8_t> & smoothed_frame, const etld_object & object, etld_tracker_candidate & candidate, const EtldClassifier & classifier, const EtldModel & model);
 
@@ -47,5 +50,7 @@ private:
     float min_part_for_scale;
     bool use_fast;
 };
+}
+}
 
 #endif // ETLDTRACKER_H

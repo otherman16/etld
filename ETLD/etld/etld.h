@@ -1,6 +1,8 @@
 #ifndef ETLD_CLASS_H
 #define ETLD_CLASS_H
 
+#include <opencv2/opencv.hpp>
+
 #include "etld/etld_global.h"
 
 #include "etld/etldclassifier.h"
@@ -11,51 +13,56 @@
 #include "etld/etldmodel.h"
 #include "etld/etldtracker.h"
 #include "etld/etldframe.h"
+#include "etld/etldparams.h"
 
-using namespace etld;
-class ETLD
+namespace cv
+{
+namespace etld
+{
+class ETLD : public Algorithm
 {
 public:
     ETLD();
+    ETLD(const ETLDParams & params);
     ~ETLD();
 
-    bool load_settings(std::string);
-    std::string str_settings();
-    std::string str_timings();
+    inline int etld_time() const {return _etld_time;}
+    inline int frame_time() const {return _frame_time;}
+    inline int init_time() const {return _init_time;}
+    inline int detector_time() const {return _detector_time;}
+    inline int tracker_time() const {return _tracker_time;}
+    inline int integrator_time() const {return _integrator_time;}
+    inline int update_time() const {return _update_time;}
 
-    int get_etld_time();
-    int get_frame_time();
-    int get_init_time();
-    int get_detector_time();
-    int get_tracker_time();
-    int get_integrator_time();
-    int get_update_time();
-
-    void init(const int & x, const int & y, const int & w, const int & h, etld_settings * settings=nullptr);
-    void init(const cv::Rect_<int> & object, etld_settings * settings=nullptr);
+    bool init(const Mat & image, const Rect2d & target);
+    bool update(const Mat & image, Rect2d & target );
     void deinit();
-    bool isOn();
+    inline bool on() const {return _on;}
     void get_object(etld_object * object);
     void get_tracker_candidates(etld_tracker_candidate * tracker_candidate);
     int get_detector_candidates(etld_detector_candidate * detector_candidates);
 
-    void new_frame(uint8_t * f, const uint32_t & fw, const uint32_t & fh, cv::Rect_<int> & roi);
-    void new_frame(const cv::Mat_<uint8_t> & f, cv::Rect_<int> & roi);
+    void read( const FileNode& fn ) {params.read(fn);}
+    void write( FileStorage& fs ) const {params.write(fs);}
+
+    inline ETLDParams * ptr_params() {return &params;}
+
+    static Ptr<ETLD> create() {return makePtr<ETLD>();}
+    static Ptr<ETLD> create(const ETLDParams & params) {return makePtr<ETLD>(params);}
 
 private:
-    void reaim(const cv::Mat_<uint8_t> & f, cv::Rect_<int> & aim);
+    void reaim(const cv::Mat & f, cv::Rect2i & aim);
 
 private:
     volatile bool _on;
-    volatile bool _init;
-    volatile bool _deinit;
-    cv::Rect_<int> roi;
-    cv::Rect_<int> new_object;
+    cv::Rect2i roi;
 
     etld_object object;
     etld_tracker_candidate tracker_candidate;
     int detector_candidates_num;
     etld_detector_candidate * detector_candidates;
+
+    ETLDParams params;
 
     EtldFrame frame;
     EtldModel model;
@@ -65,19 +72,15 @@ private:
     EtldIntegrator integrator;
     EtldLearning learning;
 
-    etld_settings settings;
-
-    volatile int etld_time;
-    volatile int frame_time;
-    volatile int init_time;
-    volatile int detector_time;
-    volatile int tracker_time;
-    volatile int integrator_time;
-    volatile int update_time;
-
-    cv::Mat_<uint8_t> * smoothed_subframe_copy;
-    EtldModel model_copy;
-    EtldClassifier classifier_copy;
+    volatile int _etld_time;
+    volatile int _frame_time;
+    volatile int _init_time;
+    volatile int _detector_time;
+    volatile int _tracker_time;
+    volatile int _integrator_time;
+    volatile int _update_time;
 };
+}
+}
 
 #endif // ETLD_CLASS_H

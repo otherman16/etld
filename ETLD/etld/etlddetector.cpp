@@ -8,6 +8,10 @@
 #include <math.h>
 #include <cstring>
 
+namespace cv
+{
+namespace etld
+{
 EtldDetector::EtldDetector()
 {
     grid_step = 2;
@@ -18,18 +22,18 @@ EtldDetector::EtldDetector()
 EtldDetector::~EtldDetector()
 {
 }
-void EtldDetector::init(const cv::Mat_<uint8_t> & frame, const etld_object & object, const EtldClassifier & classifier, const EtldModel & , const etld_settings & settings)
+void EtldDetector::init(const cv::Mat_<uint8_t> & frame, const etld_object & object, const EtldClassifier & classifier, const EtldModel & , const ETLDParams & params)
 {
     const int w = object.window.width;
     const int h = object.window.height;
     EtldImage obj(frame, object.window);
     D_thrld = obj.D() >> 1;
-    R_thrld = settings.detector_settings.r_thrld;
-    grid_step = int(settings.detector_settings.grid_step);
-    max_candidates_num = int(settings.detector_settings.max_candidates_num);
-    memcpy(detect_scales, settings.detector_settings.detect_scales, DETECT_SCALES * sizeof(float));
-    min_scale = settings.detector_settings.min_scale;
-    max_scale = settings.detector_settings.max_scale;
+    R_thrld = params.detector_settings.r_thrld;
+    grid_step = int(params.detector_settings.grid_step);
+    max_candidates_num = int(params.detector_settings.max_candidates_num);
+    memcpy(detect_scales, params.detector_settings.detect_scales, DETECT_SCALES * sizeof(float));
+    min_scale = params.detector_settings.min_scale;
+    max_scale = params.detector_settings.max_scale;
     for(uint32_t scale_idx = 0; scale_idx < DETECT_SCALES; ++scale_idx)
     {
         w_scaled[scale_idx] = int(roundf(float(w * detect_scales[scale_idx])));
@@ -95,7 +99,7 @@ int EtldDetector::detect(const cv::Mat_<uint8_t> & frame, const etld_object & ob
             float R = classifier.detect_R(obj, scale_idx);
             if(R > R_min)
             {
-                if(obj.D() > D_thrld)
+//                if(obj.D() > D_thrld)
                 {
                     if(candidates_num == max_candidates_num)
                     {
@@ -150,4 +154,6 @@ int EtldDetector::detect(const cv::Mat_<uint8_t> & frame, const etld_object & ob
     }
     delete [] grid;
     return candidates_num;
+}
+}
 }

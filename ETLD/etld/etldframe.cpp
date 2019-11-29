@@ -9,14 +9,18 @@
 #define GRID_X_STEP  (ETLD_W / GRID_X_STEPS)
 #define GRID_Y_STEP  (ETLD_H / GRID_Y_STEPS)
 
+namespace cv
+{
+namespace etld
+{
 EtldFrame::EtldFrame()
 {
     frame = nullptr;
     prev_frame = nullptr;
-    subframe = new cv::Mat_<uint8_t>(ETLD_H, ETLD_W);
-    prev_subframe = new cv::Mat_<uint8_t>(ETLD_H, ETLD_W);
-    smoothed_subframe = new cv::Mat_<uint8_t>(ETLD_H, ETLD_W);
-    prev_smoothed_subframe = new cv::Mat_<uint8_t>(ETLD_H, ETLD_W);
+    subframe = new cv::Mat(ETLD_H, ETLD_W, CV_8U);
+    prev_subframe = new cv::Mat(ETLD_H, ETLD_W, CV_8U);
+    smoothed_subframe = new cv::Mat(ETLD_H, ETLD_W, CV_8U);
+    prev_smoothed_subframe = new cv::Mat(ETLD_H, ETLD_W, CV_8U);
     _find = false;
 }
 EtldFrame::~EtldFrame()
@@ -28,14 +32,14 @@ EtldFrame::~EtldFrame()
     if(smoothed_subframe) delete smoothed_subframe;
     if(prev_smoothed_subframe) delete prev_smoothed_subframe;
 }
-void EtldFrame::init(cv::Rect_<int> & new_object, const cv::Mat_<uint8_t> & f, cv::Rect_<int> & roi)
+void EtldFrame::init(cv::Rect2i & new_object, const cv::Mat & f, cv::Rect2i & roi)
 {
     if(frame) delete frame;
     if(prev_frame) delete prev_frame;
-    frame = new cv::Mat_<uint8_t>(f.size());
-    prev_frame = new cv::Mat_<uint8_t>(f.size());
+    frame = new cv::Mat(f.size(), f.type());
+    prev_frame = new cv::Mat(f.size(), f.type());
 
-    this->roi = cv::Rect_<int>(0, 0, f.cols, f.rows);
+    this->roi = cv::Rect2i(0, 0, f.cols, f.rows);
 
     choose_next_subframe(new_object);
 
@@ -49,7 +53,7 @@ void EtldFrame::init(cv::Rect_<int> & new_object, const cv::Mat_<uint8_t> & f, c
     calculate_subframe();
     calculate_smoothed_subframe();
 }
-void EtldFrame::next(cv::Rect_<int> & object, cv::Rect_<int> & tracker, const cv::Mat_<uint8_t> & f, cv::Rect_<int> & roi)
+void EtldFrame::next(cv::Rect2i & object, cv::Rect2i & tracker, const cv::Mat & f, cv::Rect2i & roi)
 {
     if( (frame == nullptr) || (prev_frame == nullptr) || (frame->cols != f.cols) || (frame->rows != f.rows) ) return;
 
@@ -71,7 +75,7 @@ void EtldFrame::next(cv::Rect_<int> & object, cv::Rect_<int> & tracker, const cv
     calculate_subframe();
     calculate_smoothed_subframe();
 }
-void EtldFrame::find(cv::Rect_<int> & object, cv::Rect_<int> & tracker, const cv::Mat_<uint8_t> & f, cv::Rect_<int> & roi)
+void EtldFrame::find(cv::Rect2i & object, cv::Rect2i & tracker, const cv::Mat & f, cv::Rect2i & roi)
 {
     if( (frame == nullptr) || (prev_frame == nullptr) || (frame->cols != f.cols) || (frame->rows != f.rows) ) return;
 
@@ -93,19 +97,19 @@ void EtldFrame::find(cv::Rect_<int> & object, cv::Rect_<int> & tracker, const cv
     calculate_subframe();
     calculate_smoothed_subframe();
 }
-cv::Mat_<uint8_t> & EtldFrame::get_prev_subframe()
+cv::Mat & EtldFrame::get_prev_subframe()
 {
     return *prev_smoothed_subframe;
 }
-cv::Mat_<uint8_t> & EtldFrame::get_subframe()
+cv::Mat & EtldFrame::get_subframe()
 {
     return *smoothed_subframe;
 }
-cv::Mat_<uint8_t> & EtldFrame::get_smoothed_subframe()
+cv::Mat & EtldFrame::get_smoothed_subframe()
 {
     return *smoothed_subframe;
 }
-void EtldFrame::convert_rect_to_global(cv::Rect_<int> & r)
+void EtldFrame::convert_rect_to_global(cv::Rect2i & r)
 {
     float x_ratio = float(roi.width)  / float(subframe->cols);
     float y_ratio = float(roi.height) / float(subframe->rows);
@@ -114,7 +118,7 @@ void EtldFrame::convert_rect_to_global(cv::Rect_<int> & r)
     r.width  = int(roundf(float(r.width   * x_ratio)        ));
     r.height = int(roundf(float(r.height  * y_ratio)        ));
 }
-void EtldFrame::convert_rect_to_local(cv::Rect_<int> & r)
+void EtldFrame::convert_rect_to_local(cv::Rect2i & r)
 {
     float x_ratio = float(subframe->cols) / float(roi.width);
     float y_ratio = float(subframe->rows) / float(roi.height);
@@ -123,7 +127,7 @@ void EtldFrame::convert_rect_to_local(cv::Rect_<int> & r)
     r.width  = int(roundf(float((r.width    ) * x_ratio)));
     r.height = int(roundf(float((r.height   ) * y_ratio)));
 }
-void EtldFrame::choose_next_subframe(const cv::Rect_<int> & obj)
+void EtldFrame::choose_next_subframe(const cv::Rect2i & obj)
 {
     _find = false;
     int _W = obj.width * 3;
@@ -162,7 +166,7 @@ void EtldFrame::choose_next_subframe(const cv::Rect_<int> & obj)
     roi.width = W;
     roi.height = H;
 }
-void EtldFrame::choose_find_subframe(const cv::Rect_<int> &)
+void EtldFrame::choose_find_subframe(const cv::Rect2i &)
 {
     static uint32_t frames_object_invalid = 0;
     if(_find)
@@ -197,11 +201,15 @@ void EtldFrame::choose_find_subframe(const cv::Rect_<int> &)
 }
 void EtldFrame::calculate_smoothed_subframe()
 {
-    cv::blur(*subframe, *smoothed_subframe, cv::Size(7, 7));
-    cv::blur(*prev_subframe, *prev_smoothed_subframe, cv::Size(7, 7));
+    double sigma = 1.5;
+    int size = int(round(sigma * 6));
+    cv::GaussianBlur(*subframe, *smoothed_subframe, cv::Size(size, size), sigma);
+    cv::GaussianBlur(*prev_subframe, *prev_smoothed_subframe, cv::Size(size, size), sigma);
 }
 void EtldFrame::calculate_subframe()
 {
     cv::resize((*frame)(roi), *subframe, subframe->size(), 0.0, 0.0, cv::INTER_NEAREST);
     cv::resize((*prev_frame)(roi), *prev_subframe, prev_subframe->size(), 0.0, 0.0, cv::INTER_NEAREST);
+}
+}
 }

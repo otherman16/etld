@@ -11,6 +11,12 @@
 
 #include <vector>
 
+//#define CV_OPTFLOW
+
+namespace cv
+{
+namespace etld
+{
 template<typename T>
 static T median(const std::vector<T> & _v)
 {
@@ -74,25 +80,25 @@ EtldTracker::~EtldTracker()
 {
     deallocate();
 }
-void EtldTracker::init(const cv::Mat_<uint8_t> & frame, const etld_object & , const EtldClassifier & , const EtldModel & , const etld_settings & settings)
+void EtldTracker::init(const cv::Mat_<uint8_t> & frame, const etld_object & , const EtldClassifier & , const EtldModel & , const ETLDParams & params)
 {
     deallocate();
 
-    pyramid_levels      = settings.tracker_settings.pyramid_levels;
-    win_sz              = settings.tracker_settings.win_sz;
+    pyramid_levels      = params.tracker_settings.pyramid_levels;
+    win_sz              = params.tracker_settings.win_sz;
     win_rad             = win_sz / 2;
-    npts_width          = settings.tracker_settings.npts_width;
-    npts_height         = settings.tracker_settings.npts_height;
+    npts_width          = params.tracker_settings.npts_width;
+    npts_height         = params.tracker_settings.npts_height;
     npts_n              = npts_width * npts_height;
-    nmax_iter           = settings.tracker_settings.nmax_iter;
-    min_delta           = settings.tracker_settings.min_delta;
-    variance_thrld_div  = settings.tracker_settings.variance_thrld_div;
+    nmax_iter           = params.tracker_settings.nmax_iter;
+    min_delta           = params.tracker_settings.min_delta;
+    variance_thrld_div  = params.tracker_settings.variance_thrld_div;
     variance_thrld      = 0;
-    subgrid_sz          = settings.tracker_settings.subgrid_sz;
+    subgrid_sz          = params.tracker_settings.subgrid_sz;
     subgrid_rad         = subgrid_sz / 2;
-    max_fb_err_coeff    = settings.tracker_settings.max_fb_err_coeff;
-    min_part_for_scale  = settings.tracker_settings.min_part_for_scale;
-    use_fast            = settings.tracker_settings.use_fast;
+    max_fb_err_coeff    = params.tracker_settings.max_fb_err_coeff;
+    min_part_for_scale  = params.tracker_settings.min_part_for_scale;
+    use_fast            = params.tracker_settings.use_fast;
 
     allocate(frame.size());
 
@@ -102,11 +108,13 @@ void EtldTracker::count_pyramid(const cv::Mat_<uint8_t> & prev_frame, const cv::
 {
     prev_frame.copyTo(*prev_pyr[0]);
     frame.copyTo(*cur_pyr[0]);
+#ifndef CV_OPTFLOW
     for(int level = 1; level < pyramid_levels; ++level)
     {
         cv::resize(*prev_pyr[level - 1], *prev_pyr[level], prev_pyr[level]->size(), 0.0, 0.0, cv::INTER_NEAREST);
         cv::resize(*cur_pyr[level - 1], *cur_pyr[level], cur_pyr[level]->size(), 0.0, 0.0, cv::INTER_NEAREST);
     }
+#endif
 }
 void EtldTracker::allocate(const cv::Size & size)
 {
@@ -331,8 +339,10 @@ bool EtldTracker::track (float & x0, float & y0, float & w, float & h)
                 float x = x0 + sp[i].x;
                 float y = y0 + sp[i].y;
                 points[0].push_back(cv::Point2f(x, y));
+#ifndef CV_OPTFLOW
                 points[1].push_back(cv::Point2f(x, y));
                 points[2].push_back(cv::Point2f(x, y));
+#endif
                 status.push_back(true);
             }
         }
@@ -353,8 +363,10 @@ bool EtldTracker::track (float & x0, float & y0, float & w, float & h)
                 if( var > variance_thrld )
                 {
                     points[0].push_back(cv::Point2f(x, y));
+#ifndef CV_OPTFLOW
                     points[1].push_back(cv::Point2f(x, y));
                     points[2].push_back(cv::Point2f(x, y));
+#endif
                     status.push_back(true);
                 }
             }
@@ -366,15 +378,19 @@ bool EtldTracker::track (float & x0, float & y0, float & w, float & h)
         return false;
     }
 
+#ifdef CV_OPTFLOW
+    //************************************************************************************
+    std::vector<float> err;
+    cv::TermCriteria termcrit(cv::TermCriteria::COUNT|cv::TermCriteria::EPS, nmax_iter, min_delta);
+    cv::calcOpticalFlowPyrLK(*prev_pyr[0], *cur_pyr[0], points[0], points[1], status, err, cv::Size(npts_width, npts_height), pyramid_levels, termcrit, 0, 0.0001);
+    cv::calcOpticalFlowPyrLK(*cur_pyr[0], *prev_pyr[0], points[1], points[2], status, err, cv::Size(npts_width, npts_height), pyramid_levels, termcrit, 0, 0.0001);
+    //************************************************************************************
+#else
     //************************************************************************************
     calcOpticalFlow(prev_pyr, cur_pyr, points[0], points[1], status);
     calcOpticalFlow(cur_pyr, prev_pyr, points[1], points[2], status);
     //************************************************************************************
-//    std::vector<float> err;
-//    cv::TermCriteria termcrit(cv::TermCriteria::COUNT|cv::TermCriteria::EPS, nmax_iter, min_delta);
-//    cv::calcOpticalFlowPyrLK(*prev_pyr[0], *cur_pyr[0], points[0], points[1], status, err, cv::Size(npts_width, npts_height), pyramid_levels, termcrit, 0, 0.0001);
-//    cv::calcOpticalFlowPyrLK(*cur_pyr[0], *prev_pyr[0], points[1], points[2], status, err, cv::Size(npts_width, npts_height), pyramid_levels, termcrit, 0, 0.0001);
-    //************************************************************************************
+#endif
 
     for(size_t i = 0; i < status.size(); ++i)
     {
@@ -451,4 +467,6 @@ bool EtldTracker::track (float & x0, float & y0, float & w, float & h)
     }
 
     return true;
+}
+}
 }

@@ -7,6 +7,10 @@
 #include <math.h>
 #include <cstring>
 
+namespace cv
+{
+namespace etld
+{
 EtldLearning::EtldLearning()
 {
     fast_update = false;
@@ -28,7 +32,7 @@ EtldLearning::EtldLearning()
 EtldLearning::~EtldLearning()
 {
 }
-void EtldLearning::init(const cv::Mat_<uint8_t> & frame, const etld_object & object, EtldClassifier & classifier, EtldModel & model, const etld_settings & settings)
+void EtldLearning::init(const cv::Mat_<uint8_t> & frame, const etld_object & object, EtldClassifier & classifier, EtldModel & model, const ETLDParams & params)
 {
     const int w  = object.window.width;
     const int h  = object.window.height;
@@ -37,24 +41,24 @@ void EtldLearning::init(const cv::Mat_<uint8_t> & frame, const etld_object & obj
     const int W  = frame.cols;
     const int H  = frame.rows;
     EtldImage obj(frame, object.window);
-    fast_update = settings.learning_settings.fast_update;
-    neg_r_min = settings.learning_settings.neg_r_min;
-    neg_r_max = settings.learning_settings.neg_r_max;
-    pos_r_min = settings.learning_settings.pos_r_min;
-    pos_r_max = settings.learning_settings.pos_r_max;
-    neg_c_min = settings.learning_settings.neg_c_min;
-    neg_c_max = settings.learning_settings.neg_c_max;
-    pos_c_min = settings.learning_settings.pos_c_min;
-    pos_c_max = settings.learning_settings.pos_c_max;
-    overlap_thrld = settings.learning_settings.overlap_thrld;
-    detector_grid_step = settings.detector_settings.grid_step;
-    memcpy(learn_scales, settings.learning_settings.learn_scales, LEARN_SCALES * sizeof(float));
-    memcpy(learn_angles, settings.learning_settings.learn_angles, LEARN_ANGLES * sizeof(float));
+    fast_update = params.learning_settings.fast_update;
+    neg_r_min = params.learning_settings.neg_r_min;
+    neg_r_max = params.learning_settings.neg_r_max;
+    pos_r_min = params.learning_settings.pos_r_min;
+    pos_r_max = params.learning_settings.pos_r_max;
+    neg_c_min = params.learning_settings.neg_c_min;
+    neg_c_max = params.learning_settings.neg_c_max;
+    pos_c_min = params.learning_settings.pos_c_min;
+    pos_c_max = params.learning_settings.pos_c_max;
+    overlap_thrld = params.learning_settings.overlap_thrld;
+    detector_grid_step = params.detector_settings.grid_step;
+    memcpy(learn_scales, params.learning_settings.learn_scales, LEARN_SCALES * sizeof(float));
+    memcpy(learn_angles, params.learning_settings.learn_angles, LEARN_ANGLES * sizeof(float));
     //=======================================================================================
     //====== Инициализация Модели и Классификатора
     //=======================================================================================
-    classifier.init(frame, object, settings);
-    model.init(frame, object, settings);
+    classifier.init(frame, object, params);
+    model.init(frame, object, params);
     //=======================================================================================
     //====== Рассчитать Fern для нового окна
     //=======================================================================================
@@ -201,8 +205,8 @@ void EtldLearning::update(const cv::Mat_<uint8_t> & frame, const etld_object & o
     //=======================================================================================
     //====== Определение пороговых значений дисперсии
     //=======================================================================================
-    int D_obj = obj.D();
-    int D_thrld = D_obj >> 1;
+//    int D_obj = obj.D();
+//    int D_thrld = D_obj >> 1;
     //=======================================================================================
     //====== Добавление положительных примеров
     //=======================================================================================
@@ -326,13 +330,13 @@ void EtldLearning::update(const cv::Mat_<uint8_t> & frame, const etld_object & o
         float O = copy_obj.O(obj);
         if( O < overlap_thrld )
         {
-            int D = copy_obj.D();
+//            int D = copy_obj.D();
 //            if(c_neg_num < c_pos_num)
             {
                 float R = classifier.learn_R(copy_obj);
                 if( (neg_r_min < R) && (R < neg_r_max) )
                 {
-                    if(D > D_thrld)
+//                    if(D > D_thrld)
                     {
                         classifier.add_neg_ex(copy_obj);
                         ++c_neg_num;
@@ -344,7 +348,7 @@ void EtldLearning::update(const cv::Mat_<uint8_t> & frame, const etld_object & o
                 float C = model.C(copy_obj);
                 if( (neg_c_min < C) && (C < neg_c_max) )
                 {
-                    if(D > D_thrld)
+//                    if(D > D_thrld)
                     {
                         model.add_neg_ex(copy_obj);
                         ++m_neg_num;
@@ -361,4 +365,6 @@ void EtldLearning::update(const cv::Mat_<uint8_t> & frame, const etld_object & o
     //====== Освобождение вспомогательных ресурсов
     //=======================================================================================
     delete [] grid;
+}
+}
 }
